@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------ */
+/* Base */
+/* ------------------------------------------------ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply box-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-family: "Inter", system-ui, sans-serif;
+
+    background-image:
+      radial-gradient(circle at top left, rgba(91,140,255,.15), transparent 35%),
+      radial-gradient(circle at top right, rgba(139,92,246,.18), transparent 30%),
+      linear-gradient(180deg,#09090B,#111116);
+
+    overflow-x: hidden;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    user-select: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: rgba(91,140,255,.45);
+    color: white;
+  }
+
+  /* Scrollbar */
+
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,.22);
+  }
+}
+
+/* ------------------------------------------------ */
+/* Components */
+/* ------------------------------------------------ */
+
+@layer components {
+
+  /* Apple Glass */
+
+  .glass {
+    @apply bg-background-glass border border-border backdrop-blur-glass shadow-glass;
+  }
+
+  .glass-card {
+    @apply glass rounded-3xl;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-glow;
+  }
+
+  /* Buttons */
+
+  .btn-primary {
+    @apply rounded-full px-6 py-3 text-white font-semibold;
+
+    background-image: linear-gradient(135deg,#5B8CFF,#8B5CF6);
+
+    transition: all .25s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    @apply glass rounded-full px-5 py-3 text-white transition;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255,255,255,.08);
+  }
+
+  /* Inputs */
+
+  .input-field {
+    @apply w-full rounded-2xl
+      border border-border
+      bg-white/5
+      px-5
+      py-3
+      text-white
+      outline-none
+      transition-all
+      duration-300;
+  }
+
+  .input-field::placeholder {
+    color: rgba(255,255,255,.35);
+  }
+
+  .input-field:focus {
+    border-color: #5B8CFF;
+    box-shadow: 0 0 0 3px rgba(91,140,255,.18);
+  }
+
+  /* Player Slider */
+
+  .range-slider {
+    @apply h-1 w-full appearance-none rounded-full bg-white/10;
+  }
+
+  .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 999px;
+
+    background: white;
+
+    transition: .2s;
+  }
+
+  .range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .range-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 999px;
+    background: white;
+  }
+
+  /* Sections */
+
+  .section-title {
+    @apply text-3xl font-bold tracking-tight text-white;
+  }
+
+  .section-subtitle {
+    @apply mt-2 text-sm text-text-secondary;
+  }
+
+  /* Song Card */
+
+  .song-card {
+    @apply glass-card overflow-hidden transition-all duration-300;
+  }
+
+  .song-card:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* ------------------------------------------------ */
+/* Utilities */
+/* ------------------------------------------------ */
+
+@layer utilities {
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg,#5B8CFF,#8B5CF6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-blur {
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* Hide horizontal scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
