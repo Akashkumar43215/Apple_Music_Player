@@ -48,91 +48,118 @@ const PlayerBar = () => {
         className="
           fixed
           bottom-5
-          left-1/2
+          left-0
+          right-0
           z-50
-          w-[97%]
-          max-w-7xl
-          -translate-x-1/2
-          overflow-hidden
-          rounded-[28px]
-          border
-          border-white/10
-          bg-white/5
-          backdrop-blur-3xl
-          shadow-[0_25px_80px_rgba(0,0,0,.45)]
+          px-4
+          lg:ml-72
         "
       >
-        {/* Ambient Glow */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
-          <div className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-violet-500/10 blur-[120px]" />
-          <div className="absolute -right-20 bottom-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-[120px]" />
-        </div>
+        <div
+          className="
+            relative
+            mx-auto
+            max-w-[1500px]
+            overflow-hidden
+            rounded-[28px]
+            border
+            border-white/10
+            bg-white/5
+            backdrop-blur-3xl
+            shadow-[0_25px_80px_rgba(0,0,0,.45)]
+          "
+        >
+          {/* Ambient Glow */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+            <div className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-violet-500/10 blur-[120px]" />
+            <div className="absolute -right-20 bottom-0 h-56 w-56 rounded-full bg-cyan-500/10 blur-[120px]" />
+          </div>
 
-        {/* Main Layout */}
-        <div className="relative grid grid-cols-1 gap-6 p-6 lg:grid-cols-[320px_1fr_260px] lg:items-center">
-
-          {/* Left */}
-          <PlayerInfo
-            song={currentSong}
-            isPlaying={isPlaying}
-          />
-
-          {/* Center */}
-          <div className="flex flex-col items-center">
-
-            <PlaybackButtons
-              isPlaying={isPlaying}
-              onPlayPause={togglePlay}
-              onNext={playNext}
-              onPrevious={playPrevious}
-              shuffle={isShuffled}
-              repeat={repeatMode}
-              onToggleShuffle={toggleShuffle}
-              onToggleRepeat={cycleRepeatMode}
-            />
-
-            <div className="mt-5 w-full max-w-xl">
-              <ProgressBar
-                currentTime={currentTime}
-                duration={duration}
-                onSeek={seek}
+          {/* Main Content */}
+          <div
+            className="
+              relative
+              grid
+              grid-cols-1
+              gap-6
+              p-6
+              lg:grid-cols-[260px_1fr]
+              xl:grid-cols-[320px_1fr_260px]
+              xl:items-center
+            "
+          >
+            {/* Left */}
+            <motion.div
+              key={currentSong._id}
+              initial={{ opacity: 0, x: -15 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PlayerInfo
+                song={currentSong}
+                isPlaying={isPlaying}
               />
+            </motion.div>
+
+            {/* Center */}
+            <div className="flex flex-col items-center">
+              <PlaybackButtons
+                isPlaying={isPlaying}
+                onPlayPause={togglePlay}
+                onNext={playNext}
+                onPrevious={playPrevious}
+                shuffle={isShuffled}
+                repeat={repeatMode}
+                onToggleShuffle={toggleShuffle}
+                onToggleRepeat={cycleRepeatMode}
+              />
+
+              <div className="mt-5 w-full max-w-xl">
+                <ProgressBar
+                  currentTime={currentTime}
+                  duration={duration}
+                  onSeek={seek}
+                />
+              </div>
             </div>
 
+            {/* Right */}
+            <div className="hidden items-center justify-end gap-6 lg:flex">
+              <VolumeSlider
+                volume={volume}
+                muted={isMuted}
+                onVolumeChange={setVolume}
+                onMute={toggleMute}
+              />
+
+              <button
+                onClick={() =>
+                  setShowQueue((prev) => !prev)
+                }
+                className={`
+                  rounded-full
+                  p-3
+                  transition
+                  ${
+                    showQueue
+                      ? "bg-violet-500 text-white"
+                      : "bg-white/5 hover:bg-white/10"
+                  }
+                `}
+              >
+                <FiList size={20} />
+              </button>
+            </div>
           </div>
-
-          {/* Right */}
-          <div className="hidden items-center justify-end gap-6 lg:flex">
-
-            <VolumeSlider
-              volume={volume}
-              muted={isMuted}
-              onVolumeChange={setVolume}
-              onMute={toggleMute}
-            />
-
-            <button
-              onClick={() => setShowQueue(true)}
-              className="
-                rounded-full
-                bg-white/5
-                p-3
-                transition
-                hover:bg-white/10
-              "
-            >
-              <FiList size={20} />
-            </button>
-
-          </div>
-
         </div>
       </motion.div>
 
       <AnimatePresence>
         {showQueue && (
           <QueueDrawer
-            onClose={() => setShowQueue(false)}
+            onClose={() =>
+              setShowQueue(false)
+            }
           />
         )}
       </AnimatePresence>
