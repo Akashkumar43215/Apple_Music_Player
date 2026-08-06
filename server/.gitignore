@@ -19,12 +19,6 @@ node_modules/
 .env.local
 .env.*.local
 
-# Upload folders
-uploads/songs/*
-uploads/covers/*
-!uploads/songs/.gitkeep
-!uploads/covers/.gitkeep
-
 # Logs
 logs/
 *.log
