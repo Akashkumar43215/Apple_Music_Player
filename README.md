@@ -1,7 +1,5 @@
 # 🎵 MERN Music Player
 
-# 🎵 MERN Music Player
-
 A modern, full-stack Spotify-inspired music streaming application built with the **MERN Stack**. Users can upload songs, stream music, create playlists, mark favorites, and enjoy a beautiful responsive UI with secure authentication and cloud-based media storage.
 
 ![License](https://img.shields.io/badge/License-MIT-green)
