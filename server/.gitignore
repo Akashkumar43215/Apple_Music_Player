@@ -18,6 +18,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.example
 
 # Upload folders
 uploads/songs/*
