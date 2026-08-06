@@ -1,79 +1,341 @@
 # 🎵 MERN Music Player
 
-A production-ready, Spotify-inspired music streaming app built with the MERN stack.
+# 🎵 MERN Music Player
 
-## Project Structure
+A modern, full-stack Spotify-inspired music streaming application built with the **MERN Stack**. Users can upload songs, stream music, create playlists, mark favorites, and enjoy a beautiful responsive UI with secure authentication and cloud-based media storage.
 
-```
+![License](https://img.shields.io/badge/License-MIT-green)
+![React](https://img.shields.io/badge/React-19-blue)
+![Node.js](https://img.shields.io/badge/Node.js-Express-success)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-green)
+![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-orange)
+
+---
+
+## 🚀 Live Demo
+
+### 🌐 Frontend
+https://apple-music-player-one.vercel.app
+
+### ⚙️ Backend API
+https://apple-music-player.onrender.com
+
+---
+
+# 📸 Screenshots
+
+> Add screenshots here after uploading them to GitHub.
+
+| Home Page | Music Player |
+|-----------|--------------|
+| ![Home](screenshots/home.png) | ![Player](screenshots/player.png) |
+
+| Upload Song | Playlist |
+|-------------|----------|
+| ![Upload](screenshots/upload.png) | ![Playlist](screenshots/playlist.png) |
+
+---
+
+# ✨ Features
+
+## 👤 Authentication
+
+- Secure JWT Authentication
+- User Registration & Login
+- Protected Routes
+- Persistent Login
+
+---
+
+## 🎵 Music Features
+
+- Upload Songs
+- Upload Album Artwork
+- Cloudinary Media Storage
+- Stream Music
+- Play / Pause
+- Next / Previous
+- Shuffle
+- Repeat
+- Seek Bar
+- Song Duration
+
+---
+
+## ❤️ Library
+
+- Favorite Songs
+- Recently Played
+- Playlist Management
+- Playlist CRUD Operations
+
+---
+
+## 🔍 Search & Filter
+
+- Search Songs
+- Search Artist
+- Search Album
+- Genre Filter
+- Pagination
+
+---
+
+## 🎨 User Interface
+
+- Modern Glassmorphism Design
+- Responsive Layout
+- Smooth Animations
+- Mobile Friendly
+- Dark Theme
+- Interactive Music Player
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- React 19
+- Vite
+- Tailwind CSS
+- Framer Motion
+- React Router
+- Axios
+- React Icons
+- React Hot Toast
+
+---
+
+## Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
+- Multer
+- Cloudinary
+- Music Metadata
+- Express Async Handler
+
+---
+
+## Database
+
+- MongoDB Atlas
+
+---
+
+## Cloud Storage
+
+- Cloudinary
+
+---
+
+# 📁 Project Structure
+
+```text
 mern-music-player/
-├── server/     # Express + MongoDB REST API
-└── client/     # React 19 + Vite + Tailwind frontend
+│
+├── client/
+│   ├── src/
+│   ├── public/
+│   └── package.json
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── uploads/
+│   └── package.json
+│
+└── README.md
 ```
 
-## Milestone Progress
+---
 
-- [x] **Milestone 1** — Project setup, folder structure, DB connection, base server/client boot
-- [x] **Milestone 2** — Authentication (signup, login, JWT, protected routes)
-- [x] **Milestone 3** — Song upload & management (Multer, CRUD, search/filter)
-- [x] **Milestone 4** — Custom music player (play/pause/seek/queue/shuffle/repeat)
-- [ ] Milestone 5 — Playlists & Favorites
-- [ ] Milestone 6 — Dashboard & UI polish (skeletons, toasts, empty states)
-- [ ] Milestone 7 — Deployment (Vercel + Render + Atlas)
+# ⚙️ Installation
 
-## Prerequisites
-
-- Node.js 18+
-- A MongoDB connection string (local MongoDB or a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster)
-
-## Backend Setup
+## Clone Repository
 
 ```bash
-cd server
-npm install
-cp .env.example .env
-# edit .env and set MONGO_URI, JWT_SECRET, etc.
-npm run dev
+git clone https://github.com/YOUR_USERNAME/Apple_Music_Player.git
 ```
-
-The API will start on `http://localhost:5000`. Verify it's working:
 
 ```bash
-curl http://localhost:5000/api/health
+cd Apple_Music_Player
 ```
 
-## Frontend Setup
+---
+
+## Install Frontend
 
 ```bash
 cd client
 npm install
-cp .env.example .env
-# edit .env if your API runs on a different URL
+```
+
+---
+
+## Install Backend
+
+```bash
+cd ../server
+npm install
+```
+
+---
+
+# 🔐 Environment Variables
+
+## Backend (.env)
+
+```env
+PORT=5000
+
+MONGO_URI=your_mongodb_uri
+
+JWT_SECRET=your_secret_key
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+CLIENT_URL=http://localhost:5173
+```
+
+---
+
+## Frontend (.env)
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+# ▶️ Run Project
+
+## Backend
+
+```bash
+cd server
 npm run dev
 ```
 
-The app will start on `http://localhost:5173`.
+---
 
-## Environment Variables
+## Frontend
 
-### `server/.env`
-| Variable | Description |
-|---|---|
-| `PORT` | Port the API runs on (default 5000) |
-| `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret used to sign JWTs — use a long random string |
-| `JWT_EXPIRES_IN` | Token expiry (e.g. `7d`) |
-| `CLIENT_URL` | Frontend origin(s) allowed by CORS, comma-separated |
-| `MAX_AUDIO_SIZE_MB` / `MAX_IMAGE_SIZE_MB` | Upload size limits |
+```bash
+cd client
+npm run dev
+```
 
-### `client/.env`
-| Variable | Description |
-|---|---|
-| `VITE_API_URL` | Base URL of the backend API |
+---
 
-## Tech Stack
+# 🌐 Deployment
 
-**Frontend:** React 19, Vite, React Router, Tailwind CSS, Axios, React Icons, Framer Motion, Context API
-**Backend:** Node.js, Express, MongoDB, Mongoose, JWT, bcryptjs, Multer
+### Frontend
+
+- Vercel
+
+### Backend
+
+- Render
+
+### Database
+
+- MongoDB Atlas
+
+### Media Storage
+
+- Cloudinary
+
+---
+
+# 📌 API Endpoints
+
+## Authentication
+
+```http
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/profile
+```
+
+---
+
+## Songs
+
+```http
+GET     /api/songs
+GET     /api/songs/:id
+POST    /api/songs
+PUT     /api/songs/:id
+DELETE  /api/songs/:id
+```
+
+---
+
+## Playlists
+
+```http
+GET     /api/playlists
+POST    /api/playlists
+PUT     /api/playlists/:id
+DELETE  /api/playlists/:id
+```
+
+---
+
+## Favorites
+
+```http
+GET    /api/favorites
+POST   /api/favorites/:songId
+DELETE /api/favorites/:songId
+```
+
+---
+
+# 📈 Future Improvements
+
+- Lyrics Support
+- Audio Visualizer
+- Queue Management
+- User Profiles
+- Social Sharing
+- Listening History Analytics
+- AI Music Recommendation
+- Download Songs
+- Offline Mode
+
+---
+
+# 👨‍💻 Author
+
+**Akash Kumar**
+
+- GitHub: https://github.com/Akashkumar43215
+- LinkedIn: *(Add your LinkedIn profile here)*
+
+---
+
+# ⭐ Support
+
+If you found this project helpful, please consider giving it a ⭐ on GitHub.
+
+It helps others discover the project and motivates future improvements.
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
 
 ## License
 
