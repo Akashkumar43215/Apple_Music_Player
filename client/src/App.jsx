@@ -1,4 +1,4 @@
-//import PlaylistsPage from "./pages/PlaylistsPage";
+import PlaylistsPage from "./pages/PlaylistsPage";
 import PlaylistDetails from "./pages/PlaylistDetails";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
