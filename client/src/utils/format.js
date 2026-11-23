@@ -51,3 +51,13 @@ export const getMediaUrl = (url) => {
 
   return `${origin}${url}`;
 };
+
+// 3725 -> "1h 2m", 150 -> "2m 30s", 45 -> "45s"
+export const formatListening = (seconds = 0) => {
+  const s = Math.round(seconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return s % 60 ? `${m}m ${s % 60}s` : `${m}m`;
+  return `${s}s`;
+};

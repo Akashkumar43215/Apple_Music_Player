@@ -1,4 +1,5 @@
 import api from './api';
+import { userTimeZone } from './statsService';
 
 /**
  * Wraps the /api/songs endpoints. Upload/update use multipart form-data
@@ -21,7 +22,8 @@ export const songService = {
   },
 
   getSmartPlaylists: async () => {
-    const { data } = await api.get('/smart');
+    // tz keeps the Daily Mix's "day" aligned with the viewer's own calendar day
+    const { data } = await api.get('/smart', { params: { tz: userTimeZone() } });
     return data;
   },
 

@@ -1,6 +1,7 @@
 import { createContext, useState, useRef, useEffect, useCallback } from 'react';
 import { getMediaUrl } from '../utils/format';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
+import { statsService } from '../services/statsService';
 
 export const PlayerContext = createContext(null);
 
@@ -42,6 +43,16 @@ export const PlayerProvider = ({ children }) => {
 
   const lastRecordedIdRef = useRef(null);
 
+  // Real listening time for the stats page: seconds actually played (seeks and
+  // pauses don't count), reported in chunks on pause / song change / every 30s.
+  const listenRef = useRef({ songId: null, seconds: 0, lastTime: 0 });
+  const flushListen = useCallback(() => {
+    const r = listenRef.current;
+    const seconds = Math.round(r.seconds);
+    r.seconds = 0;
+    if (r.songId && seconds >= 5) statsService.recordListen(r.songId, seconds).catch(() => {});
+  }, []);
+
   // Sleep timer: null | { type: 'time', endsAt } | { type: 'song' }
   const [sleepTimer, setSleepTimerState] = useState(null);
   const sleepRef = useRef(null);
@@ -63,6 +74,9 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentSong) return;
+
+    flushListen(); // report what was heard of the previous song
+    listenRef.current = { songId: currentSong._id, seconds: 0, lastTime: 0 };
 
     setIsLoading(true);
     audio.src = getMediaUrl(currentSong.audioUrl);
@@ -129,6 +143,12 @@ export const PlayerProvider = ({ children }) => {
 
     const onTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
+      // Count only normal playback steps; big jumps are seeks or a repeat-one restart.
+      const r = listenRef.current;
+      const step = audio.currentTime - r.lastTime;
+      r.lastTime = audio.currentTime;
+      if (currentSong && r.songId === currentSong._id && step > 0 && step < 2) r.seconds += step;
+      if (r.seconds >= 30) flushListen();
       // Count a play after 3s of listening (avoids logging accidental clicks)
       if (
         currentSong &&
@@ -144,8 +164,12 @@ export const PlayerProvider = ({ children }) => {
       setIsLoading(false);
     };
     const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => {
+      setIsPlaying(false);
+      flushListen();
+    };
     const onEnded = () => {
+      flushListen();
       if (sleepRef.current?.type === 'song') {
         setSleepTimerState(null);
         setIsPlaying(false);
@@ -169,6 +193,9 @@ export const PlayerProvider = ({ children }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSong, playNext]);
+
+  // Report the last bit of listening if the player is torn down.
+  useEffect(() => () => flushListen(), [flushListen]);
 
   // Pause when a timed sleep timer runs out; the cleanup also covers cancel/unmount.
   useEffect(() => {

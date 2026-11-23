@@ -8,6 +8,7 @@ import {
   FiDisc,
   FiUsers,
   FiSettings,
+  FiBarChart2,
   FiLogOut,
 } from "react-icons/fi";
 
@@ -26,6 +27,11 @@ const menuItems = [
     title: "Favorites",
     icon: FiHeart,
     path: "/favorites",
+  },
+  {
+    title: "Your Stats",
+    icon: FiBarChart2,
+    path: "/stats",
   },
   {
     title: "Playlists",

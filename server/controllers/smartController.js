@@ -4,22 +4,12 @@ import asyncHandler from "express-async-handler";
 import Song from "../models/Song.js";
 import Favorite from "../models/Favorite.js";
 import RecentlyPlayed from "../models/RecentlyPlayed.js";
+import PlayEvent from "../models/PlayEvent.js";
 import ApiError from "../utils/ApiError.js";
+import { artistTokens } from "../utils/artists.js";
+import { buildDailyMix, dayKey } from "../utils/dailyMix.js";
 
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-// Many songs were imported from YouTube, so their "artist" is a label/channel, not a singer.
-// Those names say nothing about similarity or taste, so they are not treated as artists.
-// shortcut: name-based guess, replace once artist metadata is cleaned (metadata-cleaning phase).
-const LABEL_RE = /music|records|vevo|t-series|\byrf\b|\btips\b|saregama|ishtar|lyric|official|entertainment|films|studios?|\bdmf\b|\bdrj\b/;
-
-// "Arijit Singh, Sunidhi Chauhan" / "A & B" / "A feat. B"  ->  ["arijit singh", "sunidhi chauhan"]
-const artistTokens = (artist = "") =>
-  String(artist)
-    .toLowerCase()
-    .split(/,|&|\bfeat\.?|\bft\.?|\bx\b|\band\b/)
-    .map((t) => t.trim())
-    .filter((t) => t && !LABEL_RE.test(t));
 
 const POPULATE = ["uploadedBy", "name avatar"];
 
@@ -109,7 +99,23 @@ export const getSmartPlaylists = asyncHandler(async (req, res) => {
     ? await topSongs({ $or: topArtists.map((t) => ({ artist: new RegExp(escapeRegex(t), "i") })) }, { playCount: -1, _id: -1 })
     : [];
 
+  // Daily Mix: weights say how much this user likes each song (favourite 3, recent play 1, +1 per 2 min listened)
+  const events = await PlayEvent.aggregate([
+    { $match: { user: userId } },
+    { $group: { _id: "$song", seconds: { $sum: "$seconds" } } },
+  ]);
+  const weights = new Map();
+  const add = (id, w) => weights.set(String(id), (weights.get(String(id)) || 0) + w);
+  history.forEach((e) => e.song && add(e.song._id, 1));
+  favs.forEach((e) => e.song && add(e.song._id, 3));
+  events.forEach((e) => add(e._id, e.seconds / 120));
+
+  const allSongs = await Song.find({}).populate(...POPULATE).lean();
+  const today = dayKey(req.query.tz);
+  const dailyMix = buildDailyMix({ songs: allSongs, weights, seed: `${userId}:${today}`, size: 20 });
+
   const playlists = [
+    { key: "daily-mix", title: "Daily Mix", subtitle: `Made for you · ${today}`, songs: dailyMix },
     { key: "top-artists", title: "Your Top Artists", subtitle: topArtists.join(" · "), songs: topArtistSongs },
     { key: "most-played", title: "Most Played", subtitle: "What everyone is listening to", songs: mostPlayed },
     { key: "recently-added", title: "Recently Added", subtitle: "Fresh in the library", songs: recent },
