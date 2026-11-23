@@ -13,10 +13,12 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import GuestRoute from "./components/common/GuestRoute";
 
 import MainLayout from "./layouts/MainLayout";
+import ServerStatus from "./components/common/ServerStatus";
 
 function App() {
   return (
     <>
+      <ServerStatus />
       <Toaster
         position="top-center"
         toastOptions={{
