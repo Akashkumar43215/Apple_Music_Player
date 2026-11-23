@@ -42,6 +42,13 @@ export const PlayerProvider = ({ children }) => {
 
   const lastRecordedIdRef = useRef(null);
 
+  // Sleep timer: null | { type: 'time', endsAt } | { type: 'song' }
+  const [sleepTimer, setSleepTimerState] = useState(null);
+  const sleepRef = useRef(null);
+  useEffect(() => {
+    sleepRef.current = sleepTimer;
+  }, [sleepTimer]);
+
   const currentSong = playOrder.length > 0 ? queue[playOrder[currentIndex]] : null;
 
   // Keep the <audio> element's volume/mute in sync with state
@@ -138,7 +145,14 @@ export const PlayerProvider = ({ children }) => {
     };
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
-    const onEnded = () => playNext();
+    const onEnded = () => {
+      if (sleepRef.current?.type === 'song') {
+        setSleepTimerState(null);
+        setIsPlaying(false);
+        return;
+      }
+      playNext();
+    };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -155,6 +169,23 @@ export const PlayerProvider = ({ children }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSong, playNext]);
+
+  // Pause when a timed sleep timer runs out; the cleanup also covers cancel/unmount.
+  useEffect(() => {
+    if (sleepTimer?.type !== 'time') return;
+    const id = setTimeout(() => {
+      audioRef.current?.pause();
+      setSleepTimerState(null);
+    }, Math.max(0, sleepTimer.endsAt - Date.now()));
+    return () => clearTimeout(id);
+  }, [sleepTimer]);
+
+  // option: minutes (number) | 'song' (stop after this song) | null (cancel)
+  const setSleepTimer = useCallback((option) => {
+    if (option === null) setSleepTimerState(null);
+    else if (option === 'song') setSleepTimerState({ type: 'song' });
+    else setSleepTimerState({ type: 'time', endsAt: Date.now() + option * 60000 });
+  }, []);
 
   /**
    * Starts playing `song`, setting `songList` (defaults to just the one
@@ -269,6 +300,8 @@ export const PlayerProvider = ({ children }) => {
     cycleRepeatMode,
     jumpToQueueIndex,
     removeFromQueue,
+    sleepTimer,
+    setSleepTimer,
   };
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

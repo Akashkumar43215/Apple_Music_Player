@@ -4,6 +4,8 @@ import { FiMenu, FiX } from "react-icons/fi";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import PlayerBar from "../components/player/PlayerBar";
+import KeyboardShortcuts from "../components/player/KeyboardShortcuts";
+import MediaSessionSync from "../components/player/MediaSessionSync";
 
 const MainLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -99,6 +101,8 @@ const MainLayout = ({ children }) => {
       </div>
 
       <PlayerBar />
+      <KeyboardShortcuts />
+      <MediaSessionSync />
 
     </div>
   );

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiList } from "react-icons/fi";
+import { FiList, FiMaximize2 } from "react-icons/fi";
 
 import { usePlayer } from "../../hooks/usePlayer";
 
@@ -10,6 +10,9 @@ import PlaybackButtons from "./PlaybackButtons";
 import ProgressBar from "./ProgressBar";
 import VolumeSlider from "./VolumeSlider";
 import QueueDrawer from "./QueueDrawer";
+import MiniPlayer from "./MiniPlayer";
+import ExpandedPlayer from "./ExpandedPlayer";
+import SleepTimerMenu from "./SleepTimerMenu";
 
 const PlayerBar = () => {
   const {
@@ -32,6 +35,7 @@ const PlayerBar = () => {
   } = usePlayer();
 
   const [showQueue, setShowQueue] = useState(false);
+  const [showExpanded, setShowExpanded] = useState(false);
 
   if (!currentSong) return null;
 
@@ -46,6 +50,8 @@ const PlayerBar = () => {
           stiffness: 220,
         }}
         className="
+          hidden
+          lg:block
           fixed
           bottom-5
           left-0
@@ -132,10 +138,21 @@ const PlayerBar = () => {
                 onMute={toggleMute}
               />
 
+              <SleepTimerMenu />
+
+              <button
+                onClick={() => setShowExpanded(true)}
+                aria-label="Open full player"
+                className="rounded-full bg-white/5 p-3 transition hover:bg-white/10"
+              >
+                <FiMaximize2 size={20} />
+              </button>
+
               <button
                 onClick={() =>
                   setShowQueue((prev) => !prev)
                 }
+                aria-label="Toggle queue"
                 className={`
                   rounded-full
                   p-3
@@ -153,6 +170,17 @@ const PlayerBar = () => {
           </div>
         </div>
       </motion.div>
+
+      <MiniPlayer onExpand={() => setShowExpanded(true)} />
+
+      <AnimatePresence>
+        {showExpanded && (
+          <ExpandedPlayer
+            onClose={() => setShowExpanded(false)}
+            onShowQueue={() => setShowQueue(true)}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showQueue && (
