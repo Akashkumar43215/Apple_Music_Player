@@ -18,7 +18,7 @@ const genres = [
   },
   {
     title: "Sad",
-    value: "💔 Sad",
+    value: "💔 Heartbreak",
     subtitle: "Emotional Songs",
     color: "from-blue-500 to-indigo-600",
     icon: FiMoon,
@@ -53,7 +53,7 @@ const genres = [
   },
   {
     title: "Workout",
-    value: "💪 Workout",
+    value: "🏋️ Workout",
     subtitle: "Power Energy",
     color: "from-green-500 to-emerald-700",
     icon: FiActivity,

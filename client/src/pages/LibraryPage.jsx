@@ -174,6 +174,8 @@ const workoutSongs = songs.filter(
             onSelectGenre={(selectedGenre) => {
               setGenre(selectedGenre);
               setPage(1);
+              // The filtered list is further down the page; bring it into view.
+              document.getElementById("song-list")?.scrollIntoView({ behavior: "smooth" });
             }}
           />
         </>
@@ -208,7 +210,7 @@ const workoutSongs = songs.filter(
 
         <RecentlyPlayedStrip songs={recentlyPlayed} />
 
-        <div className="mb-6">
+        <div id="song-list" className="mb-6">
           <SongFilterBar
             search={search}
             onSearchChange={setSearch}
