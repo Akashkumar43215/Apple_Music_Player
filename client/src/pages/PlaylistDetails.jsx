@@ -199,7 +199,7 @@ const PlaylistDetails = () => {
             ) : (
               <FiMusic
                 size={90}
-                className="text-white/40"
+                className="text-white/50"
               />
             )}
           </div>
@@ -210,7 +210,7 @@ const PlaylistDetails = () => {
                 text-sm
                 uppercase
                 tracking-[5px]
-                text-white/40
+                text-white/50
               "
             >
               Playlist
@@ -288,14 +288,14 @@ const PlaylistDetails = () => {
           >
             <FiMusic
               size={60}
-              className="mx-auto text-white/30"
+              className="mx-auto text-white/50"
             />
 
             <h2 className="mt-6 text-3xl font-bold text-white">
               No Songs Yet
             </h2>
 
-            <p className="mt-2 text-white/40">
+            <p className="mt-2 text-white/50">
               Add songs to this playlist.
             </p>
           </div>

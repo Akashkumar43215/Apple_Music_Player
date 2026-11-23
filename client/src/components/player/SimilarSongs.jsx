@@ -41,7 +41,7 @@ const SimilarSongs = ({ songId }) => {
                 <span className="block truncate text-sm font-medium text-white">{s.title}</span>
                 <span className="block truncate text-xs text-white/50">{s.artist}</span>
               </span>
-              <FiPlay className="shrink-0 text-white/40 group-hover:text-white" aria-hidden="true" />
+              <FiPlay className="shrink-0 text-white/50 group-hover:text-white" aria-hidden="true" />
               <span className="sr-only">Play {s.title}</span>
             </button>
           </li>

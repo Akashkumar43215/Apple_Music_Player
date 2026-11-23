@@ -48,7 +48,7 @@
 //                       <img src={coverUrl} alt={song.title} className="h-full w-full object-cover" />
 //                     ) : (
 //                       <div className="flex h-full w-full items-center justify-center">
-//                         <FiMusic className="h-3.5 w-3.5 text-white/30" />
+//                         <FiMusic className="h-3.5 w-3.5 text-white/50" />
 //                       </div>
 //                     )}
 //                   </div>
@@ -56,15 +56,15 @@
 //                     <p className={`truncate text-sm ${isCurrent ? 'font-semibold text-accent-light' : 'text-white'}`}>
 //                       {song.title}
 //                     </p>
-//                     <p className="truncate text-xs text-white/40">{song.artist}</p>
+//                     <p className="truncate text-xs text-white/50">{song.artist}</p>
 //                   </div>
 //                 </button>
-//                 <span className="shrink-0 text-xs text-white/30">{formatDuration(song.duration)}</span>
+//                 <span className="shrink-0 text-xs text-white/50">{formatDuration(song.duration)}</span>
 //                 {!isCurrent && (
 //                   <button
 //                     onClick={() => removeFromQueue(posInPlayOrder)}
 //                     aria-label={`Remove ${song.title} from queue`}
-//                     className="shrink-0 text-white/30 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
+//                     className="shrink-0 text-white/50 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
 //                   >
 //                     <FiTrash2 className="h-3.5 w-3.5" />
 //                   </button>
@@ -154,7 +154,7 @@ const QueueDrawer = ({ onClose }) => {
 
           <div>
 
-            <p className="text-xs uppercase tracking-[4px] text-white/30">
+            <p className="text-xs uppercase tracking-[4px] text-white/50">
               Player
             </p>
 
@@ -166,6 +166,7 @@ const QueueDrawer = ({ onClose }) => {
 
           <button
             onClick={onClose}
+            aria-label="Close queue"
             className="rounded-full bg-white/5 p-2 transition hover:bg-white/10"
           >
             <FiX size={20} />
@@ -184,7 +185,7 @@ const QueueDrawer = ({ onClose }) => {
               Queue is Empty
             </h3>
 
-            <p className="mt-2 text-white/40">
+            <p className="mt-2 text-white/50">
               Play a song to start your queue.
             </p>
 
@@ -224,7 +225,7 @@ const QueueDrawer = ({ onClose }) => {
               >
                 {/* Number */}
 
-                <div className="w-6 text-center text-sm text-white/40">
+                <div className="w-6 text-center text-sm text-white/50">
                   {index + 1}
                 </div>
 
@@ -244,7 +245,7 @@ const QueueDrawer = ({ onClose }) => {
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
-                        <FiMusic className="text-white/30" />
+                        <FiMusic className="text-white/50" />
                       </div>
                     )}
 
@@ -266,7 +267,7 @@ const QueueDrawer = ({ onClose }) => {
                       {song.artist}
                     </p>
 
-                    <p className="mt-1 text-xs text-white/30">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatDuration(song.duration)}
                     </p>
 
@@ -287,7 +288,7 @@ const QueueDrawer = ({ onClose }) => {
                     }
                     className="opacity-0 transition group-hover:opacity-100"
                   >
-                    <FiTrash2 className="text-white/40 hover:text-red-400" />
+                    <FiTrash2 className="text-white/50 hover:text-red-400" />
                   </button>
                 )}
               </motion.div>

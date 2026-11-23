@@ -55,7 +55,7 @@ const SongFilterBar = ({
           Find Your Music
         </h2>
 
-        <p className="mt-1 text-sm text-white/40">
+        <p className="mt-1 text-sm text-white/50">
           Search songs or filter your library.
         </p>
       </div>

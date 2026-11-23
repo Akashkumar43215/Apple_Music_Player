@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiMusic } from "react-icons/fi";
 import toast from "react-hot-toast";
@@ -54,12 +55,17 @@ const AddToPlaylistModal = ({
     }
   };
 
+  useEscape(onClose);
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add to playlist"
         onClick={onClose}
         className="
           fixed
@@ -109,6 +115,7 @@ const AddToPlaylistModal = ({
 
             <button
               onClick={onClose}
+              aria-label="Close"
               className="
                 rounded-full
                 bg-white/10
@@ -129,7 +136,7 @@ const AddToPlaylistModal = ({
             <div className="py-10 text-center">
               <FiMusic
                 size={50}
-                className="mx-auto text-white/30"
+                className="mx-auto text-white/50"
               />
 
               <p className="mt-4 text-white/50">
@@ -168,7 +175,7 @@ const AddToPlaylistModal = ({
                       {playlist.name}
                     </h3>
 
-                    <p className="text-sm text-white/40">
+                    <p className="text-sm text-white/50">
                       {playlist.description ||
                         "No description"}
                     </p>

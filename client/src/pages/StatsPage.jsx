@@ -22,7 +22,7 @@ const BigNumber = ({ label, seconds }) => (
 
 // Horizontal bars, each scaled against the biggest value
 const BarList = ({ rows, emptyText }) => {
-  if (rows.length === 0) return <p className="text-sm text-white/40">{emptyText}</p>;
+  if (rows.length === 0) return <p className="text-sm text-white/50">{emptyText}</p>;
   const max = Math.max(...rows.map((r) => r.seconds));
   return (
     <ul className="space-y-3">
@@ -53,7 +53,7 @@ const WeekChart = ({ daily }) => {
     >
       {daily.map((d) => (
         <div key={d.date} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-          <span className="text-[11px] text-white/40">{d.seconds ? formatListening(d.seconds) : ""}</span>
+          <span className="text-[11px] text-white/50">{d.seconds ? formatListening(d.seconds) : ""}</span>
           <div
             className="w-full max-w-10 rounded-t-lg bg-gradient-to-t from-violet-600 to-cyan-400"
             style={{ height: `${d.seconds ? Math.max(4, (d.seconds / max) * 100) : 2}%`, opacity: d.seconds ? 1 : 0.25 }}
@@ -144,7 +144,7 @@ const StatsPage = () => {
                   </div>
                   <div className="shrink-0 text-right text-sm">
                     <p className="text-white">{formatListening(seconds)}</p>
-                    <p className="text-white/40">Last played {new Date(lastPlayed).toLocaleDateString()}</p>
+                    <p className="text-white/50">Last played {new Date(lastPlayed).toLocaleDateString()}</p>
                   </div>
                 </li>
               ))}

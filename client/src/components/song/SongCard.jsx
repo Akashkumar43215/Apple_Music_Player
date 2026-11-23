@@ -83,7 +83,7 @@ const SongCard = ({ song, songList, onEdit, onDelete }) => {
             <FiMusic
               className="
                 text-6xl
-                text-white/40
+                text-white/50
               "
             />
           </div>

@@ -35,7 +35,7 @@ const ContinueListening = ({
             Continue Listening
           </h2>
 
-          <p className="mt-1 text-sm text-white/40">
+          <p className="mt-1 text-sm text-white/50">
             Pick up where you left off.
           </p>
 
@@ -77,7 +77,7 @@ const ContinueListening = ({
 
           <div>
 
-            <span className="text-xs uppercase tracking-[6px] text-white/40">
+            <span className="text-xs uppercase tracking-[6px] text-white/50">
               NOW PLAYING
             </span>
 
@@ -126,7 +126,7 @@ const ContinueListening = ({
 
               </div>
 
-              <div className="mt-3 flex justify-between text-xs text-white/40">
+              <div className="mt-3 flex justify-between text-xs text-white/50">
 
                 <span>2:15</span>
 

@@ -11,6 +11,7 @@ const VolumeSlider = ({
 
       <button
         onClick={onMute}
+        aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
         className="text-white/70 transition hover:text-white"
       >
         {muted || volume === 0 ? (

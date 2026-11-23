@@ -77,7 +77,7 @@ const GenreSection = ({ onSelectGenre }) => {
           Browse by Mood
         </h2>
 
-        <p className="mt-2 text-white/40">
+        <p className="mt-2 text-white/50">
           Discover playlists based on your mood.
         </p>
 

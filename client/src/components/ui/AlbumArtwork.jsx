@@ -42,7 +42,7 @@ const AlbumArtwork = ({
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-500/20 to-cyan-500/20">
-          <FiMusic className="text-6xl text-white/30" />
+          <FiMusic className="text-6xl text-white/50" />
         </div>
       )}
 

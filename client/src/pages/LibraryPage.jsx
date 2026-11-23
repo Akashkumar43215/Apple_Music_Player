@@ -156,7 +156,7 @@ const LibraryPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-dark pb-16">
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 sm:px-6">
         <>
           {/* <HeroSection
             user={user}
@@ -298,7 +298,7 @@ const LibraryPage = () => {
             )}
           </>
         )}
-      </main>
+      </div>
 
       {showUploadModal && (
         <SongUploadModal

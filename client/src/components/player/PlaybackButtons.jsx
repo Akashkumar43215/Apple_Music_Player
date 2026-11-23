@@ -25,6 +25,8 @@ const PlaybackButtons = ({
 
         <button
           onClick={onToggleShuffle}
+          aria-label="Shuffle"
+          aria-pressed={!!shuffle}
           className={`
             relative
             transition-all
@@ -44,6 +46,7 @@ const PlaybackButtons = ({
 
         <button
           onClick={onPrevious}
+          aria-label="Previous song"
           className="
             text-white
             transition-all
@@ -58,6 +61,7 @@ const PlaybackButtons = ({
 
         <button
           onClick={onPlayPause}
+          aria-label={isPlaying ? "Pause" : "Play"}
           className="
             flex
             h-14
@@ -88,6 +92,7 @@ const PlaybackButtons = ({
 
         <button
           onClick={onNext}
+          aria-label="Next song"
           className="
             text-white
             transition-all
@@ -102,6 +107,7 @@ const PlaybackButtons = ({
 
         <button
           onClick={onToggleRepeat}
+          aria-label={`Repeat: ${repeat === "one" ? "one song" : repeat === "all" ? "all" : "off"}`}
           className={`
             relative
             transition-all

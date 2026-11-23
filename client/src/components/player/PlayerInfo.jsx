@@ -7,7 +7,7 @@ const PlayerInfo = ({ song, isPlaying }) => {
     return (
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
-          <FiMusic className="text-2xl text-white/40" />
+          <FiMusic className="text-2xl text-white/50" />
         </div>
 
         <div>
@@ -15,7 +15,7 @@ const PlayerInfo = ({ song, isPlaying }) => {
             Nothing Playing
           </h3>
 
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-white/50">
             Select a song
           </p>
         </div>

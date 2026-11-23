@@ -14,7 +14,7 @@ const RecentlyPlayedStrip = ({ songs }) => {
 
   return (
     <div className="mb-8">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/40">Recently Played</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Recently Played</h2>
       <div className="flex gap-3 overflow-x-auto pb-2">
         {songs.map((song) => {
           const isCurrentSong = currentSong?._id === song._id;
@@ -32,7 +32,7 @@ const RecentlyPlayedStrip = ({ songs }) => {
                   <img src={coverUrl} alt={song.title} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-brand/20">
-                    <FiMusic className="h-6 w-6 text-white/30" />
+                    <FiMusic className="h-6 w-6 text-white/50" />
                   </div>
                 )}
                 <div
@@ -48,7 +48,7 @@ const RecentlyPlayedStrip = ({ songs }) => {
                 </div>
               </div>
               <p className="mt-2 w-full truncate text-xs font-medium text-white">{song.title}</p>
-              <p className="w-full truncate text-[11px] text-white/40">{song.artist}</p>
+              <p className="w-full truncate text-[11px] text-white/50">{song.artist}</p>
             </button>
           );
         })}

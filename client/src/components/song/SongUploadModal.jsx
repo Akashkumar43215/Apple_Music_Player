@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiUploadCloud, FiMusic, FiImage } from "react-icons/fi";
 import toast from "react-hot-toast";
@@ -127,12 +128,17 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
     }
   };
 
+  useEscape(onClose);
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Song details"
         onClick={onClose}
         className="
           fixed
@@ -192,7 +198,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
           <div className="relative">
             <div className="mb-8 flex items-start justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[5px] text-white/30">
+                <p className="text-xs uppercase tracking-[5px] text-white/50">
                   Library
                 </p>
 
@@ -203,6 +209,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
 
               <button
                 onClick={onClose}
+              aria-label="Close"
                 className="rounded-full bg-white/5 p-3 transition hover:bg-white/10"
               >
                 <FiX size={20} />
@@ -241,14 +248,14 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
                     {audioFile ? (
                       <FiMusic className="mb-4 h-12 w-12 text-violet-400" />
                     ) : (
-                      <FiUploadCloud className="mb-4 h-12 w-12 text-white/40 transition group-hover:scale-110" />
+                      <FiUploadCloud className="mb-4 h-12 w-12 text-white/50 transition group-hover:scale-110" />
                     )}
 
                     <h3 className="text-lg font-semibold text-white">
                       {audioFile ? audioFile.name : "Drop your music here"}
                     </h3>
 
-                    <p className="mt-2 text-sm text-white/40">
+                    <p className="mt-2 text-sm text-white/50">
                       MP3 or WAV • Click to browse
                     </p>
                   </button>
@@ -291,7 +298,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
-                      <FiImage className="text-3xl text-white/30" />
+                      <FiImage className="text-3xl text-white/50" />
                     </div>
                   )}
                 </button>
@@ -307,7 +314,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
                 <div>
                   <h3 className="font-semibold text-white">Album Artwork</h3>
 
-                  <p className="mt-1 text-sm text-white/40">
+                  <p className="mt-1 text-sm text-white/50">
                     Optional PNG, JPG or WEBP
                   </p>
                 </div>
@@ -336,7 +343,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
         px-5
         py-4
         text-white
-        placeholder:text-white/30
+        placeholder:text-white/50
         outline-none
         transition
         focus:border-violet-500
@@ -368,7 +375,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
         px-5
         py-4
         text-white
-        placeholder:text-white/30
+        placeholder:text-white/50
         outline-none
         transition
         focus:border-violet-500

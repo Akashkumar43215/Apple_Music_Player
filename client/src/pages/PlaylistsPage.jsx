@@ -93,14 +93,14 @@ const PlaylistsPage = () => {
         >
           <FiMusic
             size={60}
-            className="text-white/30"
+            className="text-white/50"
           />
 
           <h2 className="mt-6 text-3xl font-bold">
             No Playlists
           </h2>
 
-          <p className="mt-2 text-white/40">
+          <p className="mt-2 text-white/50">
             Create your first playlist.
           </p>
         </motion.div>

@@ -1,3 +1,4 @@
+import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -5,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
  * (deleting a song, removing a playlist, etc.) across the app.
  */
 const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', isDangerous = true, onConfirm, onCancel, isLoading }) => {
+  useEscape(onCancel);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -12,6 +15,9 @@ const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', isDangerous =
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         onClick={onCancel}
       >
         <motion.div

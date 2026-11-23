@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
 import toast from "react-hot-toast";
@@ -39,12 +40,17 @@ const CreatePlaylistModal = ({ onClose, onCreated }) => {
     }
   };
 
+  useEscape(onClose);
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create playlist"
         onClick={onClose}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       >
@@ -76,6 +82,7 @@ const CreatePlaylistModal = ({ onClose, onCreated }) => {
 
             <button
               onClick={onClose}
+              aria-label="Close"
               className="rounded-full bg-white/5 p-3 transition hover:bg-white/10"
             >
               <FiX />

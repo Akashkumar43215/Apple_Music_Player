@@ -43,7 +43,7 @@ const HorizontalSongRow = ({
             {title}
           </h2>
 
-          <p className="mt-1 text-sm text-white/40">
+          <p className="mt-1 text-sm text-white/50">
             {subtitle}
           </p>
 

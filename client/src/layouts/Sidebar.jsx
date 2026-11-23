@@ -81,12 +81,12 @@ const Sidebar = () => {
           Music
         </motion.h1>
 
-        <p className="mt-2 text-sm text-white/40">Apple Inspired Player</p>
+        <p className="mt-2 text-sm text-white/50">Apple Inspired Player</p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-8">
-        <p className="mb-4 px-4 text-xs uppercase tracking-[4px] text-white/30">
+        <p className="mb-4 px-4 text-xs uppercase tracking-[4px] text-white/50">
           Browse
         </p>
 
@@ -151,7 +151,7 @@ const Sidebar = () => {
           <div>
             <h3 className="font-semibold text-white">Akash Kumar</h3>
 
-            <p className="text-sm text-white/40">Premium Listener</p>
+            <p className="text-sm text-white/50">Premium Listener</p>
           </div>
         </div>
 
@@ -159,19 +159,19 @@ const Sidebar = () => {
           <div>
             <h4 className="font-bold text-white">248</h4>
 
-            <p className="text-xs text-white/40">Songs</p>
+            <p className="text-xs text-white/50">Songs</p>
           </div>
 
           <div>
             <h4 className="font-bold text-white">18</h4>
 
-            <p className="text-xs text-white/40">Albums</p>
+            <p className="text-xs text-white/50">Albums</p>
           </div>
 
           <div>
             <h4 className="font-bold text-white">42</h4>
 
-            <p className="text-xs text-white/40">Artists</p>
+            <p className="text-xs text-white/50">Artists</p>
           </div>
         </div>
       </div>

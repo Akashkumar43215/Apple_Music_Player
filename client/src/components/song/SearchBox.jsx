@@ -26,7 +26,7 @@ const saveRecent = (list) => {
 
 const inputClass = `
 w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 pl-14 text-white
-backdrop-blur-xl outline-none transition-all duration-300 placeholder:text-white/40
+backdrop-blur-xl outline-none transition-all duration-300 placeholder:text-white/50
 focus:border-violet-500 focus:bg-white/[0.08]
 `;
 
@@ -122,7 +122,7 @@ const SearchBox = ({ value, onChange, placeholder, onSubmit, inputClassName = in
 
   return (
     <div ref={rootRef} className="relative">
-      <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+      <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-white/50" size={18} />
 
       <input
         type="text"
@@ -150,7 +150,7 @@ const SearchBox = ({ value, onChange, placeholder, onSubmit, inputClassName = in
           className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 shadow-2xl"
         >
           {showingRecent && (
-            <li className="flex items-center justify-between px-4 py-1.5 text-xs uppercase tracking-wide text-white/40" role="presentation">
+            <li className="flex items-center justify-between px-4 py-1.5 text-xs uppercase tracking-wide text-white/50" role="presentation">
               Recent searches
               <button onMouseDown={(e) => e.preventDefault()} onClick={clearRecent} className="normal-case text-violet-300 hover:underline">
                 Clear
@@ -175,7 +175,7 @@ const SearchBox = ({ value, onChange, placeholder, onSubmit, inputClassName = in
                   i === active ? "bg-white/10" : ""
                 }`}
               >
-                <ItemIcon className="shrink-0 text-white/40" />
+                <ItemIcon className="shrink-0 text-white/50" />
                 <span className="min-w-0">
                   <span className="block truncate text-white">{item.text}</span>
                   {item.subtitle && <span className="block truncate text-xs text-white/50">{item.subtitle}</span>}

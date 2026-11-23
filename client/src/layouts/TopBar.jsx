@@ -61,7 +61,7 @@ const TopBar = () => {
               onChange={setQuery}
               onSubmit={(text) => text && navigate(`/?q=${encodeURIComponent(text)}`)}
               placeholder="Search songs, artists..."
-              inputClassName="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-12 pr-5 text-white backdrop-blur-xl outline-none transition focus:border-violet-500 placeholder:text-white/40"
+              inputClassName="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-12 pr-5 text-white backdrop-blur-xl outline-none transition focus:border-violet-500 placeholder:text-white/50"
             />
           </div>
 

@@ -12,7 +12,7 @@ const SearchInput = ({
 
             <FiSearch
 
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50"
 
             />
 
@@ -44,7 +44,7 @@ const SearchInput = ({
 
                 text-white
 
-                placeholder:text-white/40
+                placeholder:text-white/50
 
                 outline-none
 
