@@ -24,6 +24,7 @@ import GenreSection from "../components/library/GenreSection";
 const LibraryPage = () => {
   // const { user, logout } = useAuth();
   const { user } = useAuth();
+  const canUpload = user?.role === "admin"; // the server only accepts uploads from admins
   const { playSong } = usePlayer();
   const [songs, setSongs] = useState([]);
   const [total, setTotal] = useState(0);
@@ -161,7 +162,7 @@ const LibraryPage = () => {
             user={user}
             song={recentlyPlayed[0]}
             totalSongs={total}
-            onUpload={() => setShowUploadModal(true)}
+            onUpload={canUpload ? () => setShowUploadModal(true) : undefined}
             onPlay={() => {}}
           />
 
@@ -171,7 +172,7 @@ const LibraryPage = () => {
             user={user}
             song={recentlyPlayed[0]}
             totalSongs={total}
-            onUpload={() => setShowUploadModal(true)}
+            onUpload={canUpload ? () => setShowUploadModal(true) : undefined}
             onPlay={() => handlePlaySong(recentlyPlayed[0], recentlyPlayed)}
           />
 
@@ -236,11 +237,11 @@ const LibraryPage = () => {
             message={
               hasFilters
                 ? "Try a different search term or clear your filters."
-                : "Upload your first track to start building your collection."
+                : canUpload ? "Upload your first track to start building your collection." : "No songs have been added yet."
             }
-            actionLabel={hasFilters ? "Clear filters" : "Upload a song"}
+            actionLabel={hasFilters ? "Clear filters" : canUpload ? "Upload a song" : undefined}
             onAction={
-              hasFilters ? handleClearFilters : () => setShowUploadModal(true)
+              hasFilters ? handleClearFilters : canUpload ? () => setShowUploadModal(true) : undefined
             }
           />
           {hasFilters && popular.length > 0 && (

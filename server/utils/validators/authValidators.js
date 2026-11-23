@@ -14,6 +14,8 @@ export const loginValidation = [
 export const updateProfileValidation = [
   body('name').optional().trim().isLength({ min: 2, max: 50 }).withMessage('Name must be 2-50 characters'),
   body('email').optional().trim().isEmail().withMessage('Please provide a valid email').normalizeEmail(),
+  // empty string clears the avatar; anything else must be an http(s) URL
+  body('avatar').optional({ values: 'falsy' }).trim().isURL({ protocols: ['http', 'https'], require_protocol: true }).withMessage('Avatar must be an http(s) URL').isLength({ max: 500 }).withMessage('Avatar must be an http(s) URL'),
 ];
 
 export const changePasswordValidation = [

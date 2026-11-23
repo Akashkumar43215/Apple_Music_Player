@@ -47,6 +47,8 @@ const HeroSection = ({ user, song, totalSongs = 0, onUpload, onPlay }) => {
               Continue Listening
             </Button>
 
+            {onUpload && (
+
             <Button
               variant="glass"
               onClick={onUpload}
@@ -55,6 +57,8 @@ const HeroSection = ({ user, song, totalSongs = 0, onUpload, onPlay }) => {
               <FiUpload />
               Upload Music
             </Button>
+
+            )}
           </div>
 
           {/* Stats */}
