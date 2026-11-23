@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 // import { motion } from "framer-motion";
 // import { FiPlus, FiLogOut, FiMusic } from "react-icons/fi";
 import { FiMusic } from "react-icons/fi";
@@ -36,6 +37,14 @@ const LibraryPage = () => {
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
   const [sort, setSort] = useState("newest");
+
+  // The top-bar search sends people here as /?q=...; apply it and show the results.
+  const urlQuery = useSearchParams()[0].get("q");
+  useEffect(() => {
+    if (urlQuery === null) return;
+    setSearch(urlQuery);
+    document.getElementById("song-list")?.scrollIntoView({ behavior: "smooth" });
+  }, [urlQuery]);
   const [popular, setPopular] = useState([]); // top songs overall, for Trending and "no results" suggestions
   const debouncedSearch = useDebounce(search, 400);
 

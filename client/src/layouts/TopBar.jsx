@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   FiBell,
@@ -5,6 +7,7 @@ import {
   FiUpload,
 } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
+import SearchBox from "../components/song/SearchBox";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -16,6 +19,8 @@ const getGreeting = () => {
 
 const TopBar = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
 
   const initials =
     user?.name
@@ -50,37 +55,15 @@ const TopBar = () => {
 
           {/* Search */}
 
-          <motion.div
-            whileFocus={{ scale: 1.02 }}
-            className="
-              hidden
-              md:flex
-              h-12
-              w-full
-              max-w-md
-              items-center
-              rounded-full
-              border
-              border-white/10
-              bg-white/5
-              px-5
-              backdrop-blur-xl
-            "
-          >
-            <FiSearch className="text-white/40" />
-
-            <input
+          <div className="hidden w-full max-w-md md:block">
+            <SearchBox
+              value={query}
+              onChange={setQuery}
+              onSubmit={(text) => text && navigate(`/?q=${encodeURIComponent(text)}`)}
               placeholder="Search songs, artists..."
-              className="
-                ml-3
-                flex-1
-                bg-transparent
-                text-white
-                placeholder:text-white/40
-                outline-none
-              "
+              inputClassName="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-12 pr-5 text-white backdrop-blur-xl outline-none transition focus:border-violet-500 placeholder:text-white/40"
             />
-          </motion.div>
+          </div>
 
           {/* Upload */}
 

@@ -33,9 +33,10 @@ focus:border-violet-500 focus:bg-white/[0.08]
 /**
  * Search input with live suggestions (artists + songs) and remembered recent
  * searches. `value` / `onChange(text)` stay owned by the page, so the existing
- * debounced list search keeps working exactly as before.
+ * debounced list search keeps working exactly as before. `onSubmit(text)` fires
+ * when the user picks a suggestion or presses Enter (used by the top bar to jump to results).
  */
-const SearchBox = ({ value, onChange, placeholder }) => {
+const SearchBox = ({ value, onChange, placeholder, onSubmit, inputClassName = inputClass }) => {
   const listId = useId();
   const rootRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -85,6 +86,7 @@ const SearchBox = ({ value, onChange, placeholder }) => {
   const choose = (item) => {
     onChange(item.text);
     remember(item.text);
+    onSubmit?.(item.text);
     setOpen(false);
     setActive(-1);
   };
@@ -103,6 +105,7 @@ const SearchBox = ({ value, onChange, placeholder }) => {
         choose(items[active]);
       } else {
         remember(value);
+        onSubmit?.(value.trim());
         setOpen(false);
       }
     } else if (e.key === "Escape") {
@@ -137,7 +140,7 @@ const SearchBox = ({ value, onChange, placeholder }) => {
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className={inputClass}
+        className={inputClassName}
       />
 
       {visible && (
