@@ -1,6 +1,6 @@
 
 import express from "express";
-import dotenv from "dotenv";
+import "dotenv/config"; // must load before modules that read process.env at import time
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
@@ -16,9 +16,6 @@ import songRoutes from "./routes/songRoutes.js";
 import recentlyPlayedRoutes from "./routes/recentlyPlayedRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import playlistRoutes from "./routes/playlistRoutes.js";
-
-// Load environment variables
-dotenv.config();
 
 // Connect MongoDB
 connectDB();
