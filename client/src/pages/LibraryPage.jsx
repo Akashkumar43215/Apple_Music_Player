@@ -45,7 +45,8 @@ const LibraryPage = () => {
     setSearch(urlQuery);
     document.getElementById("song-list")?.scrollIntoView({ behavior: "smooth" });
   }, [urlQuery]);
-  const [popular, setPopular] = useState([]); // top songs overall, for Trending and "no results" suggestions
+  const [popular, setPopular] = useState([]); // top songs overall, for "no results" suggestions
+  const [smartPlaylists, setSmartPlaylists] = useState([]); // Most Played, Recently Added, mixes...
   const debouncedSearch = useDebounce(search, 400);
 
   const [filterOptions, setFilterOptions] = useState({
@@ -58,21 +59,6 @@ const LibraryPage = () => {
   const [editingSong, setEditingSong] = useState(null);
   const [deletingSong, setDeletingSong] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Trending = most played across the whole library (not just the current page), and only songs actually played.
-  const trendingSongs = popular.filter((s) => s.playCount > 0);
-
-  const romanticSongs = songs.filter(
-  (song) => song.genre === "💕 Romantic"
-);
-
-const sadSongs = songs.filter(
-  (song) => song.genre === "💔 Heartbreak"
-);
-
-const workoutSongs = songs.filter(
-  (song) => song.genre === "🏋️ Workout"
-);
 
   const handlePlaySong = (song, list = songs) => {
     if (!song) return;
@@ -109,6 +95,13 @@ const workoutSongs = songs.filter(
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, genre, artist, album, sort]);
+
+  useEffect(() => {
+    songService
+      .getSmartPlaylists()
+      .then((data) => setSmartPlaylists(data.playlists))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     songService
@@ -198,33 +191,16 @@ const workoutSongs = songs.filter(
           />
         </>
 
-        <HorizontalSongRow
-          title="Trending"
-          songs={trendingSongs}
-          onEdit={setEditingSong}
-          onDelete={setDeletingSong}
-        />
-
-        <HorizontalSongRow
-          title="Romantic"
-          songs={romanticSongs}
-          onEdit={setEditingSong}
-          onDelete={setDeletingSong}
-        />
-
-        <HorizontalSongRow
-          title="Heartbreak"
-          songs={sadSongs}
-          onEdit={setEditingSong}
-          onDelete={setDeletingSong}
-        />
-
-        <HorizontalSongRow
-          title="Workout"
-          songs={workoutSongs}
-          onEdit={setEditingSong}
-          onDelete={setDeletingSong}
-        />
+        {smartPlaylists.map((playlist) => (
+          <HorizontalSongRow
+            key={playlist.key}
+            title={playlist.title}
+            subtitle={playlist.subtitle}
+            songs={playlist.songs}
+            onEdit={setEditingSong}
+            onDelete={setDeletingSong}
+          />
+        ))}
 
         <RecentlyPlayedStrip songs={recentlyPlayed} />
 

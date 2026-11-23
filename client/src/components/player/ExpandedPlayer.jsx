@@ -11,6 +11,7 @@ import PlaybackButtons from './PlaybackButtons';
 import ProgressBar from './ProgressBar';
 import VolumeSlider from './VolumeSlider';
 import SleepTimerMenu from './SleepTimerMenu';
+import SimilarSongs from './SimilarSongs';
 
 /** Full-screen now-playing view. z-[55] keeps the queue drawer (z-[60]) above it. */
 const ExpandedPlayer = ({ onClose, onShowQueue }) => {
@@ -133,6 +134,8 @@ const ExpandedPlayer = ({ onClose, onShowQueue }) => {
           </div>
           <SleepTimerMenu />
         </div>
+
+        <SimilarSongs songId={currentSong._id} />
       </div>
     </motion.div>
   );

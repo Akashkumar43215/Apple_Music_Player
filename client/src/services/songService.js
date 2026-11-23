@@ -15,6 +15,16 @@ export const songService = {
     return data;
   },
 
+  getSimilarSongs: async (id, limit = 10) => {
+    const { data } = await api.get(`/songs/${id}/similar`, { params: { limit } });
+    return data;
+  },
+
+  getSmartPlaylists: async () => {
+    const { data } = await api.get('/smart');
+    return data;
+  },
+
   getSuggestions: async (q) => {
     const { data } = await api.get('/songs/meta/suggest', { params: { q } });
     return data;

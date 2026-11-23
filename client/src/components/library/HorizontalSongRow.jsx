@@ -8,6 +8,7 @@ import SongCard from "../song/SongCard";
 
 const HorizontalSongRow = ({
   title,
+  subtitle = "Discover hand-picked songs",
   songs = [],
   onEdit,
   onDelete,
@@ -43,7 +44,7 @@ const HorizontalSongRow = ({
           </h2>
 
           <p className="mt-1 text-sm text-white/40">
-            Discover hand-picked songs
+            {subtitle}
           </p>
 
         </div>

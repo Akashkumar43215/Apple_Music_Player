@@ -16,6 +16,7 @@ import songRoutes from "./routes/songRoutes.js";
 import recentlyPlayedRoutes from "./routes/recentlyPlayedRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import playlistRoutes from "./routes/playlistRoutes.js";
+import smartRoutes from "./routes/smartRoutes.js";
 
 // Connect MongoDB
 connectDB();
@@ -74,6 +75,7 @@ app.use("/api/songs", songRoutes);
 app.use("/api/recently-played", recentlyPlayedRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/playlists", playlistRoutes);
+app.use("/api/smart", smartRoutes);
 
 app.get("/", (req, res) => {
   res.json({
