@@ -3,7 +3,7 @@ import { FiPlay } from 'react-icons/fi';
 
 import { songService } from '../../services/songService';
 import { usePlayer } from '../../hooks/usePlayer';
-import { getMediaUrl } from '../../utils/format';
+import { getCoverUrl } from '../../utils/format';
 
 /** "More like this": songs similar to `songId`; clicking one plays it with the list as the queue. */
 const SimilarSongs = ({ songId }) => {
@@ -36,7 +36,7 @@ const SimilarSongs = ({ songId }) => {
               onClick={() => playSong(s, songs)}
               className="group flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-white/10"
             >
-              <img src={getMediaUrl(s.coverUrl)} alt="" className="h-11 w-11 shrink-0 rounded-lg bg-white/5 object-cover" />
+              <img src={getCoverUrl(s.coverUrl, 96)} loading="lazy" alt="" className="h-11 w-11 shrink-0 rounded-lg bg-white/5 object-cover" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white">{s.title}</span>
                 <span className="block truncate text-xs text-white/50">{s.artist}</span>

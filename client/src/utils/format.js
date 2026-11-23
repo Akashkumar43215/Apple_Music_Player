@@ -61,3 +61,11 @@ export const formatListening = (seconds = 0) => {
   if (m > 0) return s % 60 ? `${m}m ${s % 60}s` : `${m}m`;
   return `${s}s`;
 };
+
+// Cloudinary resizes + picks the best format (WebP/AVIF) and quality; other URLs pass through unchanged.
+export const getCoverUrl = (url, width = 400) => {
+  const full = getMediaUrl(url);
+  return full.includes("res.cloudinary.com") && full.includes("/image/upload/")
+    ? full.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_fill,w_${width},h_${width}/`)
+    : full;
+};

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { FiBarChart2 } from "react-icons/fi";
 
 import { statsService } from "../services/statsService";
-import { getMediaUrl, formatListening } from "../utils/format";
+import { getCoverUrl, formatListening } from "../utils/format";
 import Spinner from "../components/common/Spinner";
 import EmptyState from "../components/common/EmptyState";
 
@@ -137,7 +137,7 @@ const StatsPage = () => {
             <ul className="divide-y divide-white/5">
               {stats.topSongs.map(({ song, seconds, lastPlayed }) => (
                 <li key={song._id} className="flex items-center gap-4 py-3">
-                  <img src={getMediaUrl(song.coverUrl)} alt="" className="h-12 w-12 shrink-0 rounded-xl bg-white/5 object-cover" />
+                  <img src={getCoverUrl(song.coverUrl, 96)} loading="lazy" alt="" className="h-12 w-12 shrink-0 rounded-xl bg-white/5 object-cover" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-white">{song.title}</p>
                     <p className="truncate text-sm text-white/50">{song.artist}</p>

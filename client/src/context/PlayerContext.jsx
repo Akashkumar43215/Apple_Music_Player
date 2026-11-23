@@ -26,6 +26,7 @@ export const PlayerProvider = ({ children }) => {
   const audioRef = useRef(null);
   if (!audioRef.current && typeof Audio !== 'undefined') {
     audioRef.current = new Audio();
+    audioRef.current.preload = "metadata"; // do not download whole songs before play
   }
 
   const [queue, setQueue] = useState([]); // original, unshuffled order

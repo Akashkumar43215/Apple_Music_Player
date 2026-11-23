@@ -7,7 +7,7 @@ import SongTitle from "./SongTitle";
 import SongDuration from "./SongDuration";
 import SongMenu from "./SongMenu";
 
-import { getMediaUrl } from "../../utils/format";
+import { getCoverUrl } from "../../utils/format";
 import { useAuth } from "../../hooks/useAuth";
 import { usePlayer } from "../../hooks/usePlayer";
 
@@ -29,7 +29,6 @@ const SongCard = ({ song, songList, onEdit, onDelete }) => {
   };
 
   console.log("Cover URL:", song.coverUrl);
-  console.log("Media URL:", getMediaUrl(song.coverUrl));
 
   return (
     <motion.div
@@ -57,7 +56,7 @@ const SongCard = ({ song, songList, onEdit, onDelete }) => {
 
         {song.coverUrl ? (
           <img
-            src={getMediaUrl(song.coverUrl)}
+            src={getCoverUrl(song.coverUrl, 400)}
             alt={`${song.title} album cover`}
             loading="lazy"
             draggable={false}

@@ -1,6 +1,6 @@
 import { FiPlay, FiPause, FiSkipForward } from 'react-icons/fi';
 import { usePlayer } from '../../hooks/usePlayer';
-import { getMediaUrl } from '../../utils/format';
+import { getCoverUrl } from '../../utils/format';
 
 /** Compact bottom player for small screens. Tapping it opens the expanded player. */
 const MiniPlayer = ({ onExpand }) => {
@@ -20,7 +20,7 @@ const MiniPlayer = ({ onExpand }) => {
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
         >
           <img
-            src={getMediaUrl(currentSong.coverUrl)}
+            src={getCoverUrl(currentSong.coverUrl, 96)}
             alt=""
             className="h-11 w-11 shrink-0 rounded-xl bg-white/5 object-cover"
           />

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FiMusic } from "react-icons/fi";
-import { getMediaUrl } from "../../utils/format";
+import { getCoverUrl } from "../../utils/format";
 
 const PlayerInfo = ({ song, isPlaying }) => {
   if (!song) {
@@ -35,7 +35,7 @@ const PlayerInfo = ({ song, isPlaying }) => {
           duration: 18,
           ease: "linear",
         }}
-        src={getMediaUrl(song.coverUrl)}
+        src={getCoverUrl(song.coverUrl, 96)}
         alt={song.title}
         className="
           h-16

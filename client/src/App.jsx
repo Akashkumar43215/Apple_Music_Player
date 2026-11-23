@@ -1,11 +1,12 @@
-import PlaylistsPage from "./pages/PlaylistsPage";
-import PlaylistDetails from "./pages/PlaylistDetails";
-import StatsPage from "./pages/StatsPage";
+const PlaylistsPage = lazy(() => import("./pages/PlaylistsPage"));
+const PlaylistDetails = lazy(() => import("./pages/PlaylistDetails"));
+const StatsPage = lazy(() => import("./pages/StatsPage"));
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import LibraryPage from "./pages/LibraryPage";
-import FavoritesPage from "./pages/FavoritesPage";
+const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -15,6 +16,7 @@ import GuestRoute from "./components/common/GuestRoute";
 
 import MainLayout from "./layouts/MainLayout";
 import ServerStatus from "./components/common/ServerStatus";
+import Spinner from "./components/common/Spinner";
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
         }}
       />
 
+      <Suspense fallback={<Spinner />}>
       <Routes>
         {/* Guest Routes */}
         <Route element={<GuestRoute />}>
@@ -90,6 +93,7 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </Suspense>
     </>
   );
 }

@@ -95,7 +95,7 @@ import {
 } from "react-icons/fi";
 
 import { usePlayer } from "../../hooks/usePlayer";
-import { getMediaUrl, formatDuration } from "../../utils/format";
+import { getCoverUrl, formatDuration } from "../../utils/format";
 
 const QueueDrawer = ({ onClose }) => {
   const {
@@ -197,7 +197,7 @@ const QueueDrawer = ({ onClose }) => {
 
           {queue.map(({ song, posInPlayOrder, isCurrent }, index) => {
 
-            const cover = getMediaUrl(song.coverUrl);
+            const cover = getCoverUrl(song.coverUrl, 96);
 
             return (
 

@@ -1,5 +1,5 @@
 import { FiPlay, FiPause, FiMusic } from 'react-icons/fi';
-import { getMediaUrl } from '../../utils/format';
+import { getCoverUrl } from '../../utils/format';
 import { usePlayer } from '../../hooks/usePlayer';
 
 /**
@@ -18,7 +18,7 @@ const RecentlyPlayedStrip = ({ songs }) => {
       <div className="flex gap-3 overflow-x-auto pb-2">
         {songs.map((song) => {
           const isCurrentSong = currentSong?._id === song._id;
-          const coverUrl = getMediaUrl(song.coverUrl);
+          const coverUrl = getCoverUrl(song.coverUrl, 300);
           return (
             <button
               key={song._id}
