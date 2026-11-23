@@ -57,13 +57,14 @@ export const errorHandler = (err, req, res, next) => {
     }
   }
 
-console.error("========== GLOBAL ERROR ==========");
-console.error(err);
-console.error("==================================");
+console.error(`[${statusCode}] ${req.method} ${req.originalUrl}`, err);
+
+  // Never leak internals (DB errors, paths) on unexpected failures outside development
+  if (statusCode >= 500 && process.env.NODE_ENV !== 'development') message = 'Something went wrong';
 
   res.status(statusCode).json({
     success: false,
     message,
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 };

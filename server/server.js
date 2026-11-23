@@ -3,6 +3,8 @@ import express from "express";
 import "dotenv/config"; // must load before modules that read process.env at import time
 import cors from "cors";
 import compression from "compression";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -52,6 +54,9 @@ console.log("Allowed Origins:", allowedOrigins);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 console.log("======================================");
 
+app.set("trust proxy", 1); // behind Render's proxy: real client IP for rate limiting
+// CORP cross-origin: legacy /uploads images are loaded from the Vercel origin
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors(corsOptions));
 
 // Handle OPTIONS preflight requests with the same allowlist
@@ -73,6 +78,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 ========================================================= */
 
 app.use("/api/health", healthRoutes);
+// Brute-force guard: only failed attempts count, so normal logins never hit it
+app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 1000, standardHeaders: true, legacyHeaders: false, message: { success: false, message: "Too many requests, please slow down" } }));
+app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, skipSuccessfulRequests: true, standardHeaders: true, legacyHeaders: false, message: { success: false, message: "Too many failed logins, try again in 15 minutes" } }));
+app.use("/api/auth/signup", rateLimit({ windowMs: 60 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false, message: { success: false, message: "Too many signups from this network, try later" } }));
 app.use("/api/auth", authRoutes);
 app.use("/api/songs", songRoutes);
 app.use("/api/recently-played", recentlyPlayedRoutes);
