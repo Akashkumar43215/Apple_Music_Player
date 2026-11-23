@@ -138,18 +138,24 @@ export const getSongs = asyncHandler(async (req, res) => {
   if (uploadedBy && mongoose.isValidObjectId(uploadedBy)) filter.uploadedBy = uploadedBy;
 
   if (search) {
-    const re = new RegExp(escapeRegex(search), "i");
-
-    filter.$or = [
-      { title: re },
-      { artist: re },
-      { album: re },
-    ];
+    // Every word must match somewhere (title, artist, album or genre/mood), in any order.
+    const terms = String(search).trim().split(/\s+/).filter(Boolean).slice(0, 6);
+    filter.$and = terms.map((t) => {
+      const re = new RegExp(escapeRegex(t), "i");
+      return { $or: [{ title: re }, { artist: re }, { album: re }, { genre: re }] };
+    });
   }
+
+  // _id is the tie-breaker so pages never repeat or skip songs that share a sort value.
+  const SORTS = {
+    newest: { createdAt: -1, _id: -1 },
+    popular: { playCount: -1, createdAt: -1, _id: -1 },
+    title: { title: 1, _id: 1 },
+  };
 
   const [songs, total] = await Promise.all([
     Song.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(SORTS[req.query.sort] || SORTS.newest)
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("uploadedBy", "name avatar"),
@@ -207,6 +213,30 @@ export const getFilterOptions = asyncHandler(async (req, res) => {
     artists,
     albums,
     genres,
+  });
+});
+
+/**
+ * @desc Search suggestions (song titles + artists matching what the user typed)
+ * @route GET /api/songs/meta/suggest?q=
+ * @access Public
+ */
+export const getSuggestions = asyncHandler(async (req, res) => {
+  const q = String(req.query.q || "").trim().slice(0, 100);
+  if (q.length < 2) return res.status(200).json({ success: true, suggestions: [] });
+
+  const re = new RegExp(escapeRegex(q), "i");
+  const [songs, artists] = await Promise.all([
+    Song.find({ title: re }).sort({ playCount: -1 }).limit(5).select("title artist").lean(),
+    Song.distinct("artist", { artist: re }),
+  ]);
+
+  res.status(200).json({
+    success: true,
+    suggestions: [
+      ...artists.slice(0, 3).map((a) => ({ type: "artist", text: a })),
+      ...songs.map((s) => ({ type: "song", text: s.title, subtitle: s.artist })),
+    ],
   });
 });
 

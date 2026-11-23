@@ -1,24 +1,7 @@
 import { motion } from "framer-motion";
-import { FiSearch, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
+import SearchBox from "./SearchBox";
 import { GENRES } from "../../utils/constants";
-
-const inputClass = `
-w-full
-rounded-2xl
-border
-border-white/10
-bg-white/5
-px-5
-py-3
-text-white
-backdrop-blur-xl
-outline-none
-transition-all
-duration-300
-placeholder:text-white/40
-focus:border-violet-500
-focus:bg-white/[0.08]
-`;
 
 const selectClass = `
 w-full
@@ -47,6 +30,8 @@ const SongFilterBar = ({
   artistOptions = [],
   albumOptions = [],
   onClearFilters,
+  sort = "newest",
+  onSortChange,
 }) => {
   const hasActiveFilters = genre || artist || album;
 
@@ -75,29 +60,14 @@ const SongFilterBar = ({
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]">
         {/* Search */}
 
-        <div className="relative">
-          <FiSearch
-            className="
-              absolute
-              left-5
-              top-1/2
-              -translate-y-1/2
-              text-white/40
-            "
-            size={18}
-          />
-
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search songs, artists or albums..."
-            className={`${inputClass} pl-14`}
-          />
-        </div>
+        <SearchBox
+          value={search}
+          onChange={onSearchChange}
+          placeholder="Search songs, artists, albums or moods..."
+        />
 
         {/* Genre */}
 
@@ -145,6 +115,19 @@ const SongFilterBar = ({
               {a}
             </option>
           ))}
+        </select>
+
+        {/* Sort */}
+
+        <select
+          value={sort}
+          onChange={(e) => onSortChange?.(e.target.value)}
+          aria-label="Sort songs"
+          className={selectClass}
+        >
+          <option value="newest">Newest</option>
+          <option value="popular">Most Played</option>
+          <option value="title">A – Z</option>
         </select>
 
         {/* Clear */}

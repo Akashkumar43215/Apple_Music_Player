@@ -15,6 +15,11 @@ export const songService = {
     return data;
   },
 
+  getSuggestions: async (q) => {
+    const { data } = await api.get('/songs/meta/suggest', { params: { q } });
+    return data;
+  },
+
   getFilterOptions: async () => {
     const { data } = await api.get('/songs/meta/filters');
     return data;

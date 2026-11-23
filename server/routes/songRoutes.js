@@ -4,6 +4,7 @@ import {
   getSongs,
   getSongById,
   getFilterOptions,
+  getSuggestions,
   updateSong,
   deleteSong,
 } from '../controllers/songController.js';
@@ -21,6 +22,7 @@ const router = express.Router();
 // Public — anyone can browse/search the library
 router.get('/', listSongsValidation, validate, getSongs);
 router.get('/meta/filters', getFilterOptions);
+router.get('/meta/suggest', getSuggestions);
 router.get('/:id', getSongById);
 
 // Private — upload/edit/delete require auth; ownership is checked in the controller

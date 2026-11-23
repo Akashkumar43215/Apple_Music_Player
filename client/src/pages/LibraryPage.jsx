@@ -35,6 +35,8 @@ const LibraryPage = () => {
   const [genre, setGenre] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
+  const [sort, setSort] = useState("newest");
+  const [popular, setPopular] = useState([]); // top songs overall, for Trending and "no results" suggestions
   const debouncedSearch = useDebounce(search, 400);
 
   const [filterOptions, setFilterOptions] = useState({
@@ -48,9 +50,8 @@ const LibraryPage = () => {
   const [deletingSong, setDeletingSong] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const trendingSongs = [...songs]
-    .sort((a, b) => (b.playCount || 0) - (a.playCount || 0))
-    .slice(0, 10);
+  // Trending = most played across the whole library (not just the current page), and only songs actually played.
+  const trendingSongs = popular.filter((s) => s.playCount > 0);
 
   const romanticSongs = songs.filter(
   (song) => song.genre === "💕 Romantic"
@@ -77,6 +78,7 @@ const workoutSongs = songs.filter(
         genre: genre || undefined,
         artist: artist || undefined,
         album: album || undefined,
+        sort,
         page,
         limit: 20,
       });
@@ -88,7 +90,7 @@ const workoutSongs = songs.filter(
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, genre, artist, album, page]);
+  }, [debouncedSearch, genre, artist, album, sort, page]);
 
   useEffect(() => {
     fetchSongs();
@@ -97,7 +99,14 @@ const workoutSongs = songs.filter(
   // Reset to page 1 whenever a filter changes
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, genre, artist, album]);
+  }, [debouncedSearch, genre, artist, album, sort]);
+
+  useEffect(() => {
+    songService
+      .getSongs({ sort: "popular", limit: 10 })
+      .then((data) => setPopular(data.songs))
+      .catch(() => {});
+  }, []);
 
   const fetchFilterOptions = useCallback(() => {
     songService
@@ -223,12 +232,15 @@ const workoutSongs = songs.filter(
             artistOptions={filterOptions.artists}
             albumOptions={filterOptions.albums}
             onClearFilters={handleClearFilters}
+            sort={sort}
+            onSortChange={setSort}
           />
         </div>
 
         {isLoading ? (
           <SongGridSkeleton />
         ) : songs.length === 0 ? (
+          <>
           <EmptyState
             icon={FiMusic}
             title={
@@ -246,6 +258,23 @@ const workoutSongs = songs.filter(
               hasFilters ? handleClearFilters : () => setShowUploadModal(true)
             }
           />
+          {hasFilters && popular.length > 0 && (
+            <section className="mt-8">
+              <h3 className="mb-4 text-lg font-bold text-white">You might like</h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {popular.slice(0, 5).map((song) => (
+                  <SongCard
+                    key={song._id}
+                    song={song}
+                    songList={popular}
+                    onEdit={setEditingSong}
+                    onDelete={setDeletingSong}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          </>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
