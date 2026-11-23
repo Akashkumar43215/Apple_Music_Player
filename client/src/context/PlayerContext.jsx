@@ -213,7 +213,7 @@ export const PlayerProvider = ({ children }) => {
       }
       return next;
     });
-  }, [queue.length, playOrder, currentIndex]);
+  }, [queue, playOrder, currentIndex]);
 
   const cycleRepeatMode = useCallback(() => {
     setRepeatMode((prev) => (prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off'));

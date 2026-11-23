@@ -57,11 +57,11 @@ const LibraryPage = () => {
 );
 
 const sadSongs = songs.filter(
-  (song) => song.genre === "💔 Sad"
+  (song) => song.genre === "💔 Heartbreak"
 );
 
 const workoutSongs = songs.filter(
-  (song) => song.genre === "💪 Workout"
+  (song) => song.genre === "🏋️ Workout"
 );
 
   const handlePlaySong = (song, list = songs) => {
@@ -99,14 +99,18 @@ const workoutSongs = songs.filter(
     setPage(1);
   }, [debouncedSearch, genre, artist, album]);
 
-  useEffect(() => {
+  const fetchFilterOptions = useCallback(() => {
     songService
       .getFilterOptions()
       .then((data) =>
         setFilterOptions({ artists: data.artists, albums: data.albums }),
       )
       .catch(() => {});
-  }, [songs.length === 0]);
+  }, []);
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [fetchFilterOptions]);
 
   useEffect(() => {
     recentlyPlayedService
@@ -128,6 +132,7 @@ const workoutSongs = songs.filter(
       toast.success("Song deleted");
       setDeletingSong(null);
       fetchSongs();
+      fetchFilterOptions();
     } catch (err) {
       toast.error(err.response?.data?.message || "Could not delete song");
     } finally {
@@ -188,7 +193,7 @@ const workoutSongs = songs.filter(
         />
 
         <HorizontalSongRow
-          title="Sad"
+          title="Heartbreak"
           songs={sadSongs}
           onEdit={setEditingSong}
           onDelete={setDeletingSong}
@@ -284,6 +289,7 @@ const workoutSongs = songs.filter(
           onSuccess={() => {
             setShowUploadModal(false);
             fetchSongs();
+            fetchFilterOptions();
           }}
         />
       )}
@@ -295,6 +301,7 @@ const workoutSongs = songs.filter(
           onSuccess={() => {
             setEditingSong(null);
             fetchSongs();
+            fetchFilterOptions();
           }}
         />
       )}

@@ -65,7 +65,14 @@ function App() {
             }
           />
 
-      
+          <Route
+            path="/playlists/:id"
+            element={
+              <MainLayout>
+                <PlaylistDetails />
+              </MainLayout>
+            }
+          />
         </Route>
 
         {/* 404 */}

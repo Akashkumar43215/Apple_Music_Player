@@ -24,7 +24,7 @@ const songSchema = new mongoose.Schema(
     genre: {
       type: String,
       enum: GENRES,
-      default: "Other",
+      default: "🎼 Other",
     },
     duration: {
       type: Number, // seconds, extracted server-side from the audio file

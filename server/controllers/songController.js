@@ -1,10 +1,14 @@
 
+import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import { parseBuffer } from "music-metadata";
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
 import Song from "../models/Song.js";
+
+// Escape user input so it is matched literally (prevents ReDoS / invalid-regex errors)
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 import ApiError from "../utils/ApiError.js";
 
 import {
@@ -124,17 +128,17 @@ export const getSongs = asyncHandler(async (req, res) => {
   const { search, artist, album, genre, uploadedBy } = req.query;
 
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 
   const filter = {};
 
-  if (artist) filter.artist = new RegExp(artist, "i");
-  if (album) filter.album = new RegExp(album, "i");
+  if (artist) filter.artist = new RegExp(escapeRegex(artist), "i");
+  if (album) filter.album = new RegExp(escapeRegex(album), "i");
   if (genre) filter.genre = genre;
-  if (uploadedBy) filter.uploadedBy = uploadedBy;
+  if (uploadedBy && mongoose.isValidObjectId(uploadedBy)) filter.uploadedBy = uploadedBy;
 
   if (search) {
-    const re = new RegExp(search, "i");
+    const re = new RegExp(escapeRegex(search), "i");
 
     filter.$or = [
       { title: re },
@@ -229,7 +233,19 @@ export const updateSong = asyncHandler(async (req, res) => {
   if (album !== undefined) song.album = album;
   if (genre !== undefined) song.genre = genre;
 
-  // TODO: Implement Cloudinary cover update
+  const coverFile = req.files?.cover?.[0];
+  if (coverFile) {
+    if (coverFile.size > MAX_IMAGE_SIZE_BYTES) {
+      throw new ApiError(400, `Cover image exceeds the ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB limit`);
+    }
+    const coverUpload = await uploadToCloudinary(coverFile.buffer, "music-player/covers", "image");
+    const oldCoverId = song.coverPublicId;
+    song.coverUrl = coverUpload.secure_url;
+    song.coverPublicId = coverUpload.public_id;
+    if (oldCoverId) {
+      await cloudinary.uploader.destroy(oldCoverId).catch((e) => console.error("Old cover cleanup failed:", e));
+    }
+  }
 
   await song.save();
 

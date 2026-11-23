@@ -67,7 +67,7 @@
 
 
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FiHeart } from "react-icons/fi";
 
@@ -80,20 +80,6 @@ import EmptyState from "../components/common/EmptyState";
 const FavoritesPage = () => {
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const loadFavorites = useCallback(async () => {
-    setLoading(true);
-
-    try {
-      const data = await favoriteService.getFavorites();
-      setSongs(data?.songs ?? []);
-    } catch (error) {
-      console.error("Failed to load favorites:", error);
-      toast.error("Could not load favorites");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     let mounted = true;

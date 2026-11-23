@@ -14,19 +14,20 @@ import ApiError from '../utils/ApiError.js';
 export const recordPlay = asyncHandler(async (req, res) => {
   const { songId } = req.params;
 
-  const song = await Song.findById(songId);
-  if (!song) {
+  if (!(await Song.exists({ _id: songId }))) {
     throw new ApiError(404, 'Song not found');
   }
 
-  await RecentlyPlayed.findOneAndUpdate(
+  const previous = await RecentlyPlayed.findOneAndUpdate(
     { user: req.user._id, song: songId },
     { playedAt: new Date() },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: false, setDefaultsOnInsert: true }
   );
 
-  song.playCount += 1;
-  await song.save();
+  // Only bump the global count if this user hasn't played it in the last hour
+  if (!previous || Date.now() - previous.playedAt.getTime() > 60 * 60 * 1000) {
+    await Song.updateOne({ _id: songId }, { $inc: { playCount: 1 } });
+  }
 
   res.status(200).json({ success: true, message: 'Play recorded' });
 });

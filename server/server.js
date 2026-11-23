@@ -23,10 +23,18 @@ dotenv.config();
 // Connect MongoDB
 connectDB();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow Postman, curl, etc.
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+};
 
 /* =========================================================
    CORS
@@ -44,30 +52,10 @@ console.log("Allowed Origins:", allowedOrigins);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 console.log("======================================");
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      console.log("Incoming Origin:", origin);
+app.use(cors(corsOptions));
 
-      // Allow Postman, curl, etc.
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      console.log("Blocked by CORS:", origin);
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
-
-// Handle OPTIONS preflight requests
-app.options("*", cors());
+// Handle OPTIONS preflight requests with the same allowlist
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -76,11 +64,8 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-// Static files
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
-);
+// Legacy local uploads (new media is stored on Cloudinary)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* =========================================================
    Routes

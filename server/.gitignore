@@ -44,3 +44,9 @@ coverage/
 
 # Vite cache
 .vite/
+
+# Local uploads (media is stored on Cloudinary)
+uploads/songs/*
+uploads/covers/*
+!uploads/songs/.gitkeep
+!uploads/covers/.gitkeep

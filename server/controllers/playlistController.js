@@ -200,12 +200,11 @@ export const removeSongFromPlaylist = asyncHandler(async (req, res) => {
     playlist: playlist._id,
   }).sort({ order: 1 });
 
-  for (let i = 0; i < remainingSongs.length; i++) {
-    if (remainingSongs[i].order !== i) {
-      remainingSongs[i].order = i;
-      await remainingSongs[i].save();
-    }
-  }
+  const ops = remainingSongs
+    .map((ps, i) => ({ updateOne: { filter: { _id: ps._id }, update: { order: i } }, changed: ps.order !== i }))
+    .filter((o) => o.changed)
+    .map(({ changed, ...op }) => op);
+  if (ops.length) await PlaylistSong.bulkWrite(ops);
 
   res.json({
     success: true,
