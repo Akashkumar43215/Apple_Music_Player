@@ -51,6 +51,24 @@ const waitForServer = () => {
 const serverLooksDown = (error) =>
   !error.response || [502, 503, 504].includes(error.response.status);
 
+// Access tokens are short-lived. On a 401 we trade the refresh token for a new one (all
+// concurrent 401s share one call) and replay the request; only if that fails do we log out.
+let refreshing = null;
+const refreshAccessToken = () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) return Promise.resolve(false);
+  // Resolves true (new token saved), false (session really over) or null (couldn't reach the server)
+  refreshing ??= axios
+    .post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken })
+    .then(({ data }) => {
+      localStorage.setItem('token', data.token);
+      return true;
+    })
+    .catch((e) => (e.response?.status === 401 ? false : null))
+    .finally(() => { refreshing = null; });
+  return refreshing;
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -63,8 +81,16 @@ api.interceptors.response.use(
       cfg._replayed = true;
       if (await waitForServer()) return api(cfg);
     }
+    const isAuthCall = /\/auth\/(login|signup|refresh)$/.test(cfg?.url || '');
+    if (error.response?.status === 401 && cfg && !cfg._refreshed && !isAuthCall) {
+      cfg._refreshed = true;
+      const refreshed = await refreshAccessToken();
+      if (refreshed) return api(cfg); // request interceptor attaches the new token
+      if (refreshed === null) return Promise.reject(error); // server unreachable: keep the session
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';

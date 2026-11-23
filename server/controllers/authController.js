@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import ApiError from '../utils/ApiError.js';
 import generateToken from '../utils/generateToken.js';
+import { issueRefreshToken, findRefreshSession, revokeRefreshToken, revokeAllRefreshTokens } from '../utils/refreshTokens.js';
 
 /**
  * @desc    Register a new user
@@ -26,11 +27,13 @@ export const signup = asyncHandler(async (req, res) => {
 
 
   const token = generateToken(user._id);
+  const refreshToken = await issueRefreshToken(user._id);
 
   res.status(201).json({
     success: true,
     message: "Account created successfully",
     token,
+    refreshToken,
     user,
   });
 });
@@ -61,11 +64,13 @@ export const login = asyncHandler(async (req, res) => {
 
 
   const token = generateToken(user._id);
+  const refreshToken = await issueRefreshToken(user._id);
 
   res.status(200).json({
     success: true,
     message: "Logged in successfully",
     token,
+    refreshToken,
     user,
   });
 });
@@ -76,6 +81,7 @@ export const login = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const logout = asyncHandler(async (req, res) => {
+  await revokeRefreshToken(req.body?.refreshToken);
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
@@ -153,8 +159,33 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   await user.save();
 
+  // Sign out every other device, then give this one a fresh session
+  await revokeAllRefreshTokens(user._id);
+  const refreshToken = await issueRefreshToken(user._id);
+
   res.status(200).json({
     success: true,
     message: "Password changed successfully",
+    token: generateToken(user._id),
+    refreshToken,
   });
+});
+/**
+ * @desc    Exchange a refresh token for a new access token
+ * @route   POST /api/auth/refresh
+ * @access  Public (the refresh token is the credential)
+ */
+export const refresh = asyncHandler(async (req, res) => {
+  const userId = await findRefreshSession(req.body?.refreshToken);
+  if (!userId) {
+    throw new ApiError(401, "Session expired, please log in again");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(401, "Session expired, please log in again");
+  }
+
+  // shortcut: the refresh token is not rotated, so two tabs refreshing together never log each other out; rotate if tokens ever move to untrusted storage
+  res.status(200).json({ success: true, token: generateToken(user._id), user });
 });

@@ -3,6 +3,7 @@ import {
   signup,
   login,
   logout,
+  refresh,
   getMe,
   updateProfile,
   changePassword,
@@ -23,7 +24,9 @@ router.post('/signup', signupValidation, validate, signup);
 router.post('/login', loginValidation, validate, login);
 
 // Private routes
-router.post('/logout', protect, logout);
+router.post('/refresh', refresh);
+// Public on purpose: the access token may already be expired when the user logs out
+router.post('/logout', logout);
 router.get('/me', protect, getMe);
 router.put('/me', protect, updateProfileValidation, validate, updateProfile);
 router.put('/change-password', protect, changePasswordValidation, validate, changePassword);

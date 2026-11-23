@@ -36,8 +36,9 @@ export const AuthProvider = ({ children }) => {
   }, [loadUser]);
 
   const signup = async (name, email, password) => {
-    const { token, user: newUser } = await authService.signup(name, email, password);
+    const { token, refreshToken, user: newUser } = await authService.signup(name, email, password);
     localStorage.setItem('token', token);
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(newUser));
     setUser(newUser);
     toast.success(`Welcome, ${newUser.name}!`);
@@ -45,8 +46,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const { token, user: loggedInUser } = await authService.login(email, password);
+    const { token, refreshToken, user: loggedInUser } = await authService.login(email, password);
     localStorage.setItem('token', token);
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(loggedInUser));
     setUser(loggedInUser);
     toast.success(`Welcome back, ${loggedInUser.name}!`);
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }) => {
       // Even if the network call fails, clear the local session
     } finally {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       setUser(null);
       toast.success('Logged out');
