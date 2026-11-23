@@ -2,6 +2,7 @@
 import express from "express";
 import "dotenv/config"; // must load before modules that read process.env at import time
 import cors from "cors";
+import compression from "compression";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -56,6 +57,7 @@ app.use(cors(corsOptions));
 // Handle OPTIONS preflight requests with the same allowlist
 app.options("*", cors(corsOptions));
 
+app.use(compression()); // gzip JSON responses
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
