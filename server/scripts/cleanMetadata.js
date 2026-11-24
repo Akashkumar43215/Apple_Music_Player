@@ -1,6 +1,7 @@
 // Usage: node scripts/cleanMetadata.js [--out dir]       dry-run (default): writes preview + review report, changes nothing
 //        node scripts/cleanMetadata.js --apply           writes backup JSON first, then updates titles
 //        node scripts/cleanMetadata.js --restore <file>  puts titles back from a backup file
+//        node scripts/cleanMetadata.js --from-file <json> [--apply]  applies hand-checked [{id, title}] edits (dry-run unless --apply)
 // Titles only. Artist/album are never touched (shortcut: add --singers/--with-albums if wanted later).
 import "dotenv/config";
 import fs from "node:fs";
@@ -21,6 +22,22 @@ try {
     const backup = JSON.parse(fs.readFileSync(val("--restore"), "utf8"));
     for (const { id, title } of backup) await Song.updateOne({ _id: id }, { $set: { title } });
     console.log(`Restored ${backup.length} titles.`);
+  } else if (flag("--from-file")) {
+    const edits = JSON.parse(fs.readFileSync(val("--from-file"), "utf8"));
+    const current = await Song.find({ _id: { $in: edits.map((e) => e.id) } }, "title").lean();
+    const before = new Map(current.map((x) => [String(x._id), x.title]));
+    // only songs that still exist, with a sensible new title
+    const valid = edits.filter((e) => before.has(e.id) && typeof e.title === "string" && e.title.trim().length >= 2 && e.title.length <= 100);
+    console.log(`${valid.length} of ${edits.length} edits are valid`);
+    valid.forEach((e) => console.log(`  ${before.get(e.id)}\n  -> ${e.title}`));
+    if (flag("--apply")) {
+      const backupFile = path.join(outDir, `backup-${Date.now()}.json`);
+      fs.writeFileSync(backupFile, JSON.stringify(valid.map((e) => ({ id: e.id, title: before.get(e.id) })), null, 2));
+      for (const e of valid) await Song.updateOne({ _id: e.id }, { $set: { title: e.title.trim() } });
+      console.log(`Applied ${valid.length} edits. Undo: node scripts/cleanMetadata.js --restore ${backupFile}`);
+    } else {
+      console.log("Dry run: nothing written. Add --apply to write.");
+    }
   } else {
     const songs = await Song.find({}, "title artist").sort({ createdAt: 1 }).lean();
     const rows = songs.map((s) => ({ id: String(s._id), artist: s.artist, before: s.title, ...cleanTitle(s.title) }));
