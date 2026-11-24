@@ -13,7 +13,7 @@ const stats = [
     color: "text-violet-400",
   },
   {
-    label: "Genres",
+    label: "Moods",
     icon: FiGrid,
     color: "text-cyan-400",
   },
@@ -31,13 +31,13 @@ const stats = [
 
 const LibraryStats = ({
   totalSongs = 0,
-  totalGenres = 0,
+  totalMoods = 0,
   totalFavorites = 0,
   recentlyPlayed = 0,
 }) => {
   const values = [
     totalSongs,
-    totalGenres,
+    totalMoods,
     totalFavorites,
     recentlyPlayed,
   ];

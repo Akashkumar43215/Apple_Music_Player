@@ -129,7 +129,7 @@ const StatsPage = () => {
         </Card>
 
         <Card title="Top moods">
-          <BarList rows={stats.topGenres.map((g) => ({ label: g.genre, seconds: g.seconds }))} emptyText="Nothing yet." />
+          <BarList rows={(stats.topMoods || stats.topGenres.map((g) => ({ mood: g.genre, seconds: g.seconds }))).map((m) => ({ label: m.mood, seconds: m.seconds }))} emptyText="Nothing yet." />
         </Card>
 
         <div className="lg:col-span-2">

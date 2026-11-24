@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
 import SearchBox from "./SearchBox";
-import { GENRES } from "../../utils/constants";
+import { GENRE_CHOICES, MOODS } from "../../utils/constants";
 
 const selectClass = `
 w-full
@@ -21,6 +21,8 @@ focus:border-violet-500
 const SongFilterBar = ({
   search,
   onSearchChange,
+  mood,
+  onMoodChange,
   genre,
   onGenreChange,
   artist,
@@ -33,7 +35,7 @@ const SongFilterBar = ({
   sort = "newest",
   onSortChange,
 }) => {
-  const hasActiveFilters = genre || artist || album;
+  const hasActiveFilters = mood || genre || artist || album;
 
   return (
     <motion.div
@@ -69,16 +71,34 @@ const SongFilterBar = ({
           placeholder="Search songs, artists, albums or moods..."
         />
 
+        {/* Mood */}
+
+        <select
+          value={mood}
+          onChange={(e) => onMoodChange(e.target.value)}
+          className={selectClass}
+          aria-label="Mood"
+        >
+          <option value="">All Moods</option>
+
+          {MOODS.filter((m) => m !== "🎼 Other").map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+
         {/* Genre */}
 
         <select
           value={genre}
           onChange={(e) => onGenreChange(e.target.value)}
           className={selectClass}
+          aria-label="Genre"
         >
           <option value="">All Genres</option>
 
-          {GENRES.map((g) => (
+          {GENRE_CHOICES.filter((g) => g !== "🎼 Other").map((g) => (
             <option key={g} value={g}>
               {g}
             </option>

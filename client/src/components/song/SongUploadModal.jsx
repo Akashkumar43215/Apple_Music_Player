@@ -6,7 +6,7 @@ import { FiX, FiUploadCloud, FiMusic, FiImage } from "react-icons/fi";
 import toast from "react-hot-toast";
 import GenreDropdown from "../ui/GenreDropdown";
 import { songService } from "../../services/songService";
-import { GENRES } from "../../utils/constants";
+import { GENRE_CHOICES, MOODS, moodFromGenre } from "../../utils/constants";
 import { getMediaUrl } from "../../utils/format";
 
 const SongUploadModal = ({ song, onClose, onSuccess }) => {
@@ -16,7 +16,9 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
     title: song?.title || "",
     artist: song?.artist || "",
     album: song?.album || "",
-    genre: song?.genre || "Other",
+    // an old song kept its mood in `genre`; the form splits it into the two fields
+    mood: song?.mood || moodFromGenre(song?.genre) || "🎼 Other",
+    genre: song?.genre && !moodFromGenre(song.genre) ? song.genre : "🎼 Other",
   });
 
   const [audioFile, setAudioFile] = useState(null);
@@ -420,12 +422,29 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
 
                   <div>
                     <label className="mb-2 block text-sm text-white/60">
+                      Mood
+                    </label>
+
+                    <GenreDropdown
+                      value={formData.mood}
+                      options={MOODS}
+                      onChange={(mood) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          mood,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm text-white/60">
                       Genre
                     </label>
 
                     <GenreDropdown
                       value={formData.genre}
-                      options={GENRES}
+                      options={GENRE_CHOICES}
                       onChange={(genre) =>
                         setFormData((prev) => ({
                           ...prev,

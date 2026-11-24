@@ -47,12 +47,13 @@ export const songService = {
     return data.items;
   },
 
-  uploadSong: async ({ title, artist, album, genre, audioFile, coverFile }, onProgress) => {
+  uploadSong: async ({ title, artist, album, genre, mood, audioFile, coverFile }, onProgress) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('artist', artist);
     if (album) formData.append('album', album);
     if (genre) formData.append('genre', genre);
+    if (mood) formData.append('mood', mood);
     formData.append('audio', audioFile);
     if (coverFile) formData.append('cover', coverFile);
 
@@ -67,12 +68,13 @@ export const songService = {
     return data;
   },
 
-  updateSong: async (id, { title, artist, album, genre, coverFile }) => {
+  updateSong: async (id, { title, artist, album, genre, mood, coverFile }) => {
     const formData = new FormData();
     if (title !== undefined) formData.append('title', title);
     if (artist !== undefined) formData.append('artist', artist);
     if (album !== undefined) formData.append('album', album);
     if (genre !== undefined) formData.append('genre', genre);
+    if (mood !== undefined) formData.append('mood', mood);
     if (coverFile) formData.append('cover', coverFile);
 
     const { data } = await api.put(`/songs/${id}`, formData, {

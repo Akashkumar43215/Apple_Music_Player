@@ -3,7 +3,7 @@ import { FiPlay, FiUpload } from "react-icons/fi";
 import { Button, GlassCard, AlbumArtwork } from "../ui";
 import LibraryStats from "./LibraryStats";
 
-const HeroSection = ({ user, song, totalSongs = 0, onUpload, onPlay }) => {
+const HeroSection = ({ user, song, totalSongs = 0, totalMoods = 0, onUpload, onPlay }) => {
   // Don't render until we have at least one song
   if (!song) return null;
 
@@ -86,7 +86,7 @@ const HeroSection = ({ user, song, totalSongs = 0, onUpload, onPlay }) => {
           </div> */}
           <LibraryStats
             totalSongs={totalSongs}
-            totalGenres={18}
+            totalMoods={totalMoods}
             totalFavorites={0}
             recentlyPlayed={10}
           />

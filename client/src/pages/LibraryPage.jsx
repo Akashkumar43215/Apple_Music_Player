@@ -35,6 +35,7 @@ const LibraryPage = () => {
 
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
+  const [mood, setMood] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
   const [sort, setSort] = useState("newest");
@@ -69,6 +70,7 @@ const LibraryPage = () => {
   const [filterOptions, setFilterOptions] = useState({
     artists: [],
     albums: [],
+    moods: [],
   });
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
 
@@ -88,6 +90,7 @@ const LibraryPage = () => {
       const data = await songService.getSongs({
         search: debouncedSearch || undefined,
         genre: genre || undefined,
+        mood: mood || undefined,
         artist: artist || undefined,
         album: album || undefined,
         sort,
@@ -102,7 +105,7 @@ const LibraryPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, genre, artist, album, sort, page]);
+  }, [debouncedSearch, genre, mood, artist, album, sort, page]);
 
   useEffect(() => {
     fetchSongs();
@@ -111,7 +114,7 @@ const LibraryPage = () => {
   // Reset to page 1 whenever a filter changes
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, genre, artist, album, sort]);
+  }, [debouncedSearch, genre, mood, artist, album, sort]);
 
   useEffect(() => {
     songService
@@ -131,7 +134,7 @@ const LibraryPage = () => {
     songService
       .getFilterOptions()
       .then((data) =>
-        setFilterOptions({ artists: data.artists, albums: data.albums }),
+        setFilterOptions({ artists: data.artists, albums: data.albums, moods: data.moods || [] }),
       )
       .catch(() => {});
   }, []);
@@ -149,6 +152,7 @@ const LibraryPage = () => {
 
   const handleClearFilters = () => {
     setGenre("");
+    setMood("");
     setArtist("");
     setAlbum("");
   };
@@ -168,7 +172,7 @@ const LibraryPage = () => {
     }
   };
 
-  const hasFilters = Boolean(debouncedSearch || genre || artist || album);
+  const hasFilters = Boolean(debouncedSearch || genre || mood || artist || album);
 
   return (
     <div className="min-h-screen bg-gradient-dark pb-16">
@@ -178,6 +182,7 @@ const LibraryPage = () => {
             user={user}
             song={recentlyPlayed[0]}
             totalSongs={total}
+            totalMoods={filterOptions.moods.length}
             onUpload={canUpload ? () => setShowUploadModal(true) : undefined}
             onPlay={() => {}}
           />
@@ -199,8 +204,8 @@ const LibraryPage = () => {
 
           {/* <GenreSection /> */}
           <GenreSection
-            onSelectGenre={(selectedGenre) => {
-              setGenre(selectedGenre);
+            onSelectGenre={(selectedMood) => {
+              setMood(selectedMood);
               setPage(1);
               // The filtered list is further down the page; bring it into view.
               document.getElementById("song-list")?.scrollIntoView({ behavior: "smooth" });
@@ -225,6 +230,8 @@ const LibraryPage = () => {
           <SongFilterBar
             search={search}
             onSearchChange={setSearch}
+            mood={mood}
+            onMoodChange={setMood}
             genre={genre}
             onGenreChange={setGenre}
             artist={artist}
