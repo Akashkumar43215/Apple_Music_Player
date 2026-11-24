@@ -106,9 +106,15 @@ export const getMe = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, email, avatar } = req.body;
+  const { name, email, avatar, currentPassword } = req.body;
+  const emailChanging = email && email !== req.user.email;
 
-  if (email && email !== req.user.email) {
+  if (emailChanging) {
+    // a stolen session must not be able to take over the account by swapping the email
+    const withPassword = await User.findById(req.user._id).select("+password");
+    if (!currentPassword || !(await withPassword.matchPassword(currentPassword))) {
+      throw new ApiError(401, "Current password is required to change your email");
+    }
     const emailTaken = await User.findOne({ email });
 
     if (emailTaken) {
