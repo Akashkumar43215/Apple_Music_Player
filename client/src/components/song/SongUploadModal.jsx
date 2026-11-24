@@ -187,7 +187,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
             rounded-[32px]
             border
             border-white/10
-            bg-[#111118]/95
+            bg-[#121216]/95
             p-8
             backdrop-blur-3xl
             shadow-[0_30px_80px_rgba(0,0,0,.55)]

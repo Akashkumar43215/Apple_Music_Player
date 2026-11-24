@@ -62,7 +62,7 @@ const ExpandedPlayer = ({ onClose, onShowQueue }) => {
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-      className="fixed inset-0 z-[55] flex flex-col overflow-y-auto bg-[#0a0a0f] text-white"
+      className="fixed inset-0 z-[55] flex flex-col overflow-y-auto bg-[#0f0d13] text-white"
     >
       {/* Blurred artwork backdrop */}
       {cover && (

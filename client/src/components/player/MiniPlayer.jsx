@@ -9,7 +9,7 @@ const MiniPlayer = ({ onExpand }) => {
   const pct = duration ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D]/95 shadow-2xl backdrop-blur-xl lg:hidden">
+    <div className="fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-2xl border border-white/10 bg-[#121216]/95 shadow-2xl backdrop-blur-xl lg:hidden">
       <div className="h-0.5 bg-white/10" aria-hidden="true">
         <div className="h-full bg-violet-500" style={{ width: `${pct}%` }} />
       </div>

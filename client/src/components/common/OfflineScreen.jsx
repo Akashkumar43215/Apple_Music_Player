@@ -14,7 +14,7 @@ const OfflineScreen = ({ onRetry }) => {
   const play = (song) => (currentSong?._id === song._id ? togglePlay() : playSong(song, songs));
 
   return (
-    <div role="alert" className="flex min-h-screen flex-col items-center gap-4 bg-[#0a0a0f] px-6 py-16 text-center text-white">
+    <div role="alert" className="flex min-h-screen flex-col items-center gap-4 bg-[#0f0d13] px-6 py-16 text-center text-white">
       <FiWifiOff size={48} aria-hidden="true" className="text-white/60" />
       <h1 className="text-2xl font-bold">You're offline</h1>
       <p className="max-w-sm text-white/60">

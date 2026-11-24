@@ -134,7 +134,7 @@ const QueueDrawer = ({ onClose }) => {
           overflow-hidden
           border-l
           border-white/10
-          bg-[#111118]/95
+          bg-[#121216]/95
           backdrop-blur-3xl
         "
       >

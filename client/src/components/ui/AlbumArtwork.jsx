@@ -21,7 +21,7 @@ const AlbumArtwork = ({
         relative
         overflow-hidden
         rounded-[28px]
-        bg-[#17171f]
+        bg-[#121216]
         shadow-2xl
         ${sizes[size]}
         ${className}

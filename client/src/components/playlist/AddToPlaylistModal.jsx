@@ -107,7 +107,7 @@ const AddToPlaylistModal = ({
             rounded-3xl
             border
             border-white/10
-            bg-[#18181c]
+            bg-[#121216]
             p-8
             shadow-2xl
           "

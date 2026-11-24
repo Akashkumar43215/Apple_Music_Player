@@ -67,9 +67,9 @@ export default {
     extend: {
       colors: {
         background: {
-          DEFAULT: '#09090B',
-          secondary: '#111116',
-          tertiary: '#18181F',
+          DEFAULT: '#0f0d13',
+          secondary: '#121216',
+          tertiary: '#1b1a21',
           glass: 'rgba(255,255,255,0.05)',
         },
 
@@ -79,30 +79,47 @@ export default {
           active: 'rgba(255,255,255,.12)',
         },
 
-        primary: '#5B8CFF',
-        secondary: '#8B5CF6',
+        primary: '#a238ff',
+        secondary: '#ad47ff',
+
+        // Deezer purple replaces Tailwind's violet everywhere the app already uses violet-*
+        violet: {
+          300: '#d4a6ff',
+          400: '#bf75ff',
+          500: '#a238ff',
+          600: '#8a1fe6',
+          700: '#7216c0',
+        },
+        fuchsia: {
+          500: '#ad47ff',
+          600: '#9a2ff0',
+        },
         cyan: '#22D3EE',
         success: '#10B981',
         danger: '#EF4444',
 
-        border: 'rgba(255,255,255,.08)',
+        border: '#2d2d32',
 
         text: {
-          primary: '#FFFFFF',
-          secondary: '#B4B4C3',
-          muted: '#7D7D91',
+          primary: '#fdfcfe',
+          secondary: '#a9a6aa',
+          muted: '#6f6d71',
         },
       },
 
       backgroundImage: {
         hero:
-          'radial-gradient(circle at top left,#5B8CFF33 0%,transparent 40%), radial-gradient(circle at top right,#8B5CF633 0%,transparent 35%), linear-gradient(180deg,#09090B,#121218)',
+          'linear-gradient(180deg,#1b1126 0%,#0f0d13 70%)',
 
         glass:
           'linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.03))',
 
         brand:
-          'linear-gradient(135deg,#5B8CFF,#8B5CF6)',
+          'linear-gradient(135deg,#a238ff,#ad47ff)',
+
+        // the names the components already use (bg-gradient-brand / bg-gradient-dark)
+        'gradient-brand': 'linear-gradient(135deg,#a238ff,#c27bff)',
+        'gradient-dark': 'linear-gradient(180deg,#17101f 0%,#0f0d13 420px)',
       },
 
       borderRadius: {
@@ -117,8 +134,8 @@ export default {
       },
 
       boxShadow: {
-        glow: '0 0 40px rgba(91,140,255,.18)',
-        glass: '0 20px 60px rgba(0,0,0,.45)',
+        glow: '0 0 40px rgba(162,56,255,.22)',
+        glass: '0 2px 2px rgba(45,45,50,.08), 0 16px 40px rgba(0,0,0,.4)',
         card: '0 12px 35px rgba(0,0,0,.35)',
       },
 

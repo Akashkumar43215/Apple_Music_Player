@@ -147,7 +147,7 @@ const SearchBox = ({ value, onChange, placeholder, onSubmit, inputClassName = in
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 shadow-2xl"
+          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#121216] py-1 shadow-2xl"
         >
           {showingRecent && (
             <li className="flex items-center justify-between px-4 py-1.5 text-xs uppercase tracking-wide text-white/50" role="presentation">

@@ -47,7 +47,7 @@ overflow-auto
 rounded-2xl
 border
 border-white/10
-bg-[#17171D]
+bg-[#121216]
 p-2
 shadow-2xl
 "

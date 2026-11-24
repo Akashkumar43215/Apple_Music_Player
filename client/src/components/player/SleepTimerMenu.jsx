@@ -48,7 +48,7 @@ const SleepTimerMenu = ({ direction = 'up' }) => {
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <ul
             role="menu"
-            className={`absolute right-0 z-20 w-48 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 text-sm shadow-2xl ${
+            className={`absolute right-0 z-20 w-48 overflow-hidden rounded-2xl border border-white/10 bg-[#121216] py-1 text-sm shadow-2xl ${
               direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'
             }`}
           >

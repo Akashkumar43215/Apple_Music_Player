@@ -8,7 +8,7 @@ w-full
 rounded-2xl
 border
 border-white/10
-bg-[#17171f]
+bg-[#121216]
 px-5
 py-3
 text-white

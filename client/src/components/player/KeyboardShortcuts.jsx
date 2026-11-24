@@ -60,7 +60,7 @@ const KeyboardShortcuts = () => {
     <Dialog open={helpOpen} onClose={() => setHelpOpen(false)} className="relative z-[70]">
       <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#17171D] p-6 text-white">
+        <DialogPanel className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#121216] p-6 text-white">
           <DialogTitle className="mb-4 text-xl font-bold">Keyboard shortcuts</DialogTitle>
           <dl className="space-y-2 text-sm">
             {SHORTCUTS.map(([keys, what]) => (

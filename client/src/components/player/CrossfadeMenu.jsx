@@ -33,7 +33,7 @@ const CrossfadeMenu = ({ direction = 'up' }) => {
           <ul
             role="menu"
             aria-label="Crossfade"
-            className={`absolute right-0 z-20 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 text-sm shadow-2xl ${
+            className={`absolute right-0 z-20 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#121216] py-1 text-sm shadow-2xl ${
               direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'
             }`}
           >
