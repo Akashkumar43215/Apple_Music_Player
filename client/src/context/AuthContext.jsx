@@ -13,6 +13,7 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // true until initial auth check resolves
+  const [offline, setOffline] = useState(false); // signed in (token saved) but the check could not run: no network
 
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -23,9 +24,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const { user: freshUser } = await authService.getMe();
       setUser(freshUser);
+      setOffline(false);
     } catch {
-      // Token invalid/expired — api.js interceptor already clears storage on 401
-      setUser(null);
+      // No network: keep the session and show the offline screen instead of the login page.
+      // Otherwise the token is invalid/expired — api.js interceptor already clears storage on 401
+      if (!navigator.onLine) setOffline(true);
+      else setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -34,6 +38,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  // Back online while the offline screen is up: check the session again
+  useEffect(() => {
+    if (!offline) return undefined;
+    window.addEventListener('online', loadUser);
+    return () => window.removeEventListener('online', loadUser);
+  }, [offline, loadUser]);
 
   const signup = async (name, email, password) => {
     const { token, refreshToken, user: newUser } = await authService.signup(name, email, password);
@@ -81,6 +92,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated: !!user,
     isLoading,
+    offline,
     signup,
     login,
     logout,
