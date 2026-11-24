@@ -2,6 +2,8 @@ import { createContext, useState, useRef, useEffect, useCallback } from 'react';
 import { getMediaUrl } from '../utils/format';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
 import { statsService } from '../services/statsService';
+import { createDecks } from '../utils/audioDecks';
+import { nextPosition } from '../utils/crossfade';
 
 export const PlayerContext = createContext(null);
 
@@ -23,11 +25,9 @@ const shuffleIndices = (length, keepFirst) => {
  * controls playback exclusively through this context.
  */
 export const PlayerProvider = ({ children }) => {
-  const audioRef = useRef(null);
-  if (!audioRef.current && typeof Audio !== 'undefined') {
-    audioRef.current = new Audio();
-    audioRef.current.preload = "metadata"; // do not download whole songs before play
-  }
+  const decksRef = useRef(null);
+  if (!decksRef.current && typeof Audio !== 'undefined') decksRef.current = createDecks();
+  const decks = decksRef.current; // decks.active is the <audio> element that is playing
 
   const [queue, setQueue] = useState([]); // original, unshuffled order
   const [playOrder, setPlayOrder] = useState([]); // array of indices into `queue`
@@ -65,15 +65,15 @@ export const PlayerProvider = ({ children }) => {
 
   // Keep the <audio> element's volume/mute in sync with state
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-      audioRef.current.muted = isMuted;
-    }
+    decks?.all().forEach((a) => {
+      a.volume = volume;
+      a.muted = isMuted;
+    });
   }, [volume, isMuted]);
 
   // Load a new source whenever the current song changes
   useEffect(() => {
-    const audio = audioRef.current;
+    const audio = decks?.active;
     if (!audio || !currentSong) return;
 
     flushListen(); // report what was heard of the previous song
@@ -94,7 +94,7 @@ export const PlayerProvider = ({ children }) => {
     if (playOrder.length === 0) return;
 
     if (repeatMode === 'one') {
-      const audio = audioRef.current;
+      const audio = decks?.active;
       if (audio) {
         audio.currentTime = 0;
         audio.play().catch(() => {});
@@ -102,14 +102,9 @@ export const PlayerProvider = ({ children }) => {
       return;
     }
 
-    const nextPos = currentIndex + 1;
-    if (nextPos >= playOrder.length) {
-      if (repeatMode === 'all') {
-        setCurrentIndex(0);
-        setIsPlaying(true);
-      } else {
-        setIsPlaying(false); // reached the end of the queue, stop
-      }
+    const nextPos = nextPosition(playOrder.length, currentIndex, repeatMode);
+    if (nextPos === null) {
+      setIsPlaying(false); // reached the end of the queue, stop
       return;
     }
     setCurrentIndex(nextPos);
@@ -117,7 +112,7 @@ export const PlayerProvider = ({ children }) => {
   }, [playOrder.length, currentIndex, repeatMode]);
 
   const playPrevious = useCallback(() => {
-    const audio = audioRef.current;
+    const audio = decks?.active;
     // Standard UX: if more than 3s into the song, restart it instead of
     // going to the previous track
     if (audio && audio.currentTime > 3) {
@@ -139,7 +134,7 @@ export const PlayerProvider = ({ children }) => {
 
   // Wire up native audio element events once
   useEffect(() => {
-    const audio = audioRef.current;
+    const audio = decks?.active;
     if (!audio) return;
 
     const onTimeUpdate = () => {
@@ -202,7 +197,7 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     if (sleepTimer?.type !== 'time') return;
     const id = setTimeout(() => {
-      audioRef.current?.pause();
+      decks?.active?.pause();
       setSleepTimerState(null);
     }, Math.max(0, sleepTimer.endsAt - Date.now()));
     return () => clearTimeout(id);
@@ -235,7 +230,7 @@ export const PlayerProvider = ({ children }) => {
   );
 
   const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
+    const audio = decks?.active;
     if (!audio || !currentSong) return;
     if (isPlaying) {
       audio.pause();
@@ -245,7 +240,7 @@ export const PlayerProvider = ({ children }) => {
   }, [isPlaying, currentSong]);
 
   const seek = useCallback((time) => {
-    const audio = audioRef.current;
+    const audio = decks?.active;
     if (audio) {
       audio.currentTime = time;
       setCurrentTime(time);
