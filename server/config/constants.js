@@ -6,6 +6,22 @@ export const MAX_IMAGE_SIZE_BYTES = (Number(process.env.MAX_IMAGE_SIZE_MB) || 5)
 export const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+// How a song feels. Replaces the mood-like entries of GENRES step by step (see the mood/genre plan);
+// until the data is migrated, GENRES keeps accepting every old value.
+export const MOODS = [
+  "💕 Romantic",
+  "💔 Heartbreak",
+  "🥺 Emotional",
+  "😌 Chill",
+  "🌙 Night",
+  "☀️ Morning",
+  "🎉 Party",
+  "🚗 Road Trip",
+  "🏋️ Workout",
+  "😴 Sleep",
+  "🎼 Other",
+];
+
 export const GENRES = [
   "💕 Romantic",
   "💔 Heartbreak",

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GENRES } from "../config/constants.js";
+import { GENRES, MOODS } from "../config/constants.js";
 
 const songSchema = new mongoose.Schema(
   {
@@ -25,6 +25,11 @@ const songSchema = new mongoose.Schema(
       type: String,
       enum: GENRES,
       default: "🎼 Other",
+    },
+    // Optional until the migration fills it; songs without one simply have no mood yet
+    mood: {
+      type: String,
+      enum: MOODS,
     },
     duration: {
       type: Number, // seconds, extracted server-side from the audio file
@@ -67,6 +72,7 @@ songSchema.index({ title: "text", artist: "text", album: "text" });
 // Supports filter-by-artist/genre queries
 songSchema.index({ artist: 1 });
 songSchema.index({ genre: 1 });
+songSchema.index({ mood: 1 });
 
 const Song = mongoose.model("Song", songSchema);
 
