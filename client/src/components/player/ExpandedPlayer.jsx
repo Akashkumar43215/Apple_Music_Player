@@ -1,3 +1,4 @@
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FiChevronDown, FiHeart, FiList } from 'react-icons/fi';
@@ -37,6 +38,8 @@ const ExpandedPlayer = ({ onClose, onShowQueue }) => {
   } = usePlayer();
   const { isFavorite, toggleFavorite } = useFavorites(currentSong?._id);
   const closeRef = useRef(null);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -51,6 +54,7 @@ const ExpandedPlayer = ({ onClose, onShowQueue }) => {
   return (
     <motion.div
       role="dialog"
+        ref={dialogRef}
       aria-modal="true"
       aria-label="Now playing"
       initial={{ y: '100%' }}

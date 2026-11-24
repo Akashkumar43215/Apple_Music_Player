@@ -1,3 +1,4 @@
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useState, useRef } from "react";
 import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from "framer-motion";
@@ -129,6 +130,8 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
   };
 
   useEscape(onClose);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
 
   return (
     <AnimatePresence>
@@ -137,6 +140,7 @@ const SongUploadModal = ({ song, onClose, onSuccess }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         role="dialog"
+        ref={dialogRef}
         aria-modal="true"
         aria-label="Song details"
         onClick={onClose}

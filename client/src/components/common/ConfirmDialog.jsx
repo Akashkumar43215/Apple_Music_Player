@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,6 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', isDangerous = true, onConfirm, onCancel, isLoading }) => {
   useEscape(onCancel);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
 
   return (
     <AnimatePresence>
@@ -16,6 +20,7 @@ const ConfirmDialog = ({ title, message, confirmLabel = 'Confirm', isDangerous =
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
         role="dialog"
+        ref={dialogRef}
         aria-modal="true"
         aria-label={title}
         onClick={onCancel}

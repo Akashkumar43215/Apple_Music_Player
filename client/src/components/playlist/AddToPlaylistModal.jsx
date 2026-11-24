@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEffect, useState, useRef } from "react";
 import { useEscape } from "../../hooks/useEscape";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiMusic } from "react-icons/fi";
@@ -56,6 +57,8 @@ const AddToPlaylistModal = ({
   };
 
   useEscape(onClose);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef);
 
   return (
     <AnimatePresence>
@@ -64,6 +67,7 @@ const AddToPlaylistModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         role="dialog"
+        ref={dialogRef}
         aria-modal="true"
         aria-label="Add to playlist"
         onClick={onClose}
