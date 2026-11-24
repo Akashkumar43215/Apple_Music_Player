@@ -11,6 +11,7 @@ import Song from "../models/Song.js";
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 import ApiError from "../utils/ApiError.js";
 import { artistNames } from "../utils/artists.js";
+import { moodFromGenre } from "../utils/mood.js";
 
 import {
   MAX_AUDIO_SIZE_BYTES,
@@ -63,7 +64,7 @@ if (coverFile && coverFile.size > MAX_IMAGE_SIZE_BYTES) {
   );
 }
 
-const { title, artist, album, genre } = req.body;
+const { title, artist, album, genre, mood } = req.body;
 
 if (!title || !artist) {
   throw new ApiError(400, "Title and artist are required");
@@ -102,6 +103,8 @@ let duration = 0;
     artist,
     album,
     genre,
+    // old clients only send `genre`; when that is a mood, it is the mood too
+    mood: mood || moodFromGenre(genre),
     duration,
 
     audioUrl: audioUpload.secure_url,
@@ -126,7 +129,7 @@ let duration = 0;
  * @access Public
  */
 export const getSongs = asyncHandler(async (req, res) => {
-  const { search, artist, album, genre, uploadedBy } = req.query;
+  const { search, artist, album, genre, mood, uploadedBy } = req.query;
 
   const page = parseInt(req.query.page) || 1;
   const limit = Math.min(parseInt(req.query.limit) || 20, 100);
@@ -136,6 +139,7 @@ export const getSongs = asyncHandler(async (req, res) => {
   if (artist) filter.artist = new RegExp(escapeRegex(artist), "i");
   if (album) filter.album = new RegExp(escapeRegex(album), "i");
   if (genre) filter.genre = genre;
+  if (mood) filter.mood = mood;
   if (uploadedBy && mongoose.isValidObjectId(uploadedBy)) filter.uploadedBy = uploadedBy;
 
   if (search) {
@@ -143,7 +147,7 @@ export const getSongs = asyncHandler(async (req, res) => {
     const terms = String(search).trim().split(/\s+/).filter(Boolean).slice(0, 6);
     filter.$and = terms.map((t) => {
       const re = new RegExp(escapeRegex(t), "i");
-      return { $or: [{ title: re }, { artist: re }, { album: re }, { genre: re }] };
+      return { $or: [{ title: re }, { artist: re }, { album: re }, { genre: re }, { mood: re }] };
     });
   }
 
@@ -203,10 +207,11 @@ export const getSongById = asyncHandler(async (req, res) => {
  * @access Public
  */
 export const getFilterOptions = asyncHandler(async (req, res) => {
-  const [artists, albums, genres] = await Promise.all([
+  const [artists, albums, genres, moods] = await Promise.all([
     Song.distinct("artist"),
     Song.distinct("album"),
     Song.distinct("genre"),
+    Song.distinct("mood"),
   ]);
 
   res.status(200).json({
@@ -214,6 +219,7 @@ export const getFilterOptions = asyncHandler(async (req, res) => {
     artists,
     albums,
     genres,
+    moods: moods.filter(Boolean), // songs without a mood leave a null behind
   });
 });
 
@@ -257,12 +263,15 @@ export const updateSong = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You can only edit songs you uploaded");
   }
 
-  const { title, artist, album, genre } = req.body;
+  const { title, artist, album, genre, mood } = req.body;
 
   if (title !== undefined) song.title = title;
   if (artist !== undefined) song.artist = artist;
   if (album !== undefined) song.album = album;
   if (genre !== undefined) song.genre = genre;
+  // an explicit mood wins; an old client's mood-style genre keeps the mood in step, any other genre leaves it alone
+  if (mood !== undefined) song.mood = mood;
+  else if (genre !== undefined && moodFromGenre(genre)) song.mood = moodFromGenre(genre);
 
   const coverFile = req.files?.cover?.[0];
   if (coverFile) {

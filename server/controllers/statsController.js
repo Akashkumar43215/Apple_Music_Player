@@ -5,6 +5,7 @@ import PlayEvent from "../models/PlayEvent.js";
 import ApiError from "../utils/ApiError.js";
 import { artistNames } from "../utils/artists.js";
 import { dayKey } from "../utils/dailyMix.js";
+import { moodOf } from "../utils/mood.js";
 
 const MIN_SECONDS = 5; // shorter listens are skips; they never count
 
@@ -69,12 +70,13 @@ export const getStats = asyncHandler(async (req, res) => {
   });
 
   const songs = await Song.find({ _id: { $in: perSong.map((p) => p._id) } })
-    .select("title artist genre coverUrl")
+    .select("title artist genre mood coverUrl")
     .lean();
   const byId = new Map(songs.map((s) => [String(s._id), s]));
 
   const artists = new Map();
   const genres = new Map();
+  const moods = new Map();
   let totalSeconds = 0;
   for (const p of perSong) {
     totalSeconds += p.seconds;
@@ -85,6 +87,8 @@ export const getStats = asyncHandler(async (req, res) => {
       artists.set(key, { name, seconds: (artists.get(key)?.seconds || 0) + p.seconds });
     });
     if (s.genre) genres.set(s.genre, (genres.get(s.genre) || 0) + p.seconds);
+    const m = moodOf(s);
+    if (m) moods.set(m, (moods.get(m) || 0) + p.seconds);
   }
 
   const top = (entries, n) => entries.sort((a, b) => b.seconds - a.seconds).slice(0, n);
@@ -95,6 +99,8 @@ export const getStats = asyncHandler(async (req, res) => {
     weekSeconds: daily.reduce((sum, d) => sum + d.seconds, 0),
     daily,
     topArtists: top([...artists.values()], 5),
+    // topGenres is kept for clients that have not switched to topMoods yet
+    topMoods: top([...moods].map(([mood, seconds]) => ({ mood, seconds })), 5),
     topGenres: top([...genres].map(([genre, seconds]) => ({ genre, seconds })), 5),
     topSongs: top(
       perSong

@@ -1,4 +1,5 @@
 import { artistTokens } from "./artists.js";
+import { moodOf, genreOf } from "./mood.js";
 
 // --- deterministic randomness: the same seed always gives the same numbers ---
 const hashString = (str) => {
@@ -20,7 +21,10 @@ const similarity = (a, b) => {
   const at = new Set(artistTokens(a.artist));
   let s = 0;
   if (artistTokens(b.artist).some((t) => at.has(t))) s += 3;
-  if (a.genre && a.genre === b.genre) s += 2;
+  const am = moodOf(a);
+  if (am && am === moodOf(b)) s += 2;
+  const ag = genreOf(a);
+  if (ag && ag === genreOf(b)) s += 2;
   if (a.album && a.album !== "Single" && a.album === b.album) s += 2;
   return s;
 };
@@ -43,15 +47,16 @@ export const buildDailyMix = ({ songs, weights, seed, size = 20 }) => {
   const played = new Set(liked.map(([id]) => id));
 
   const artistW = new Map();
-  const genreW = new Map();
+  const moodW = new Map();
   for (const [id, w] of liked) {
     const s = byId.get(id);
     artistTokens(s.artist).forEach((t) => artistW.set(t, (artistW.get(t) || 0) + w));
-    if (s.genre) genreW.set(s.genre, (genreW.get(s.genre) || 0) + w);
+    const m = moodOf(s);
+    if (m) moodW.set(m, (moodW.get(m) || 0) + w);
   }
   const top = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([k]) => k);
   const topArtists = new Set(top(artistW, 3));
-  const topGenres = new Set(top(genreW, 2));
+  const topMoods = new Set(top(moodW, 2));
 
   const maxPlay = Math.max(1, ...songs.map((s) => s.playCount || 0));
   const picked = new Map();
@@ -76,9 +81,9 @@ export const buildDailyMix = ({ songs, weights, seed, size = 20 }) => {
     (s) => artistTokens(s.artist).reduce((sum, t) => sum + (artistW.get(t) || 0), 0),
     quota(0.3)
   );
-  take(songs.filter((s) => topGenres.has(s.genre)), (s) => genreW.get(s.genre) || 0, quota(0.2));
+  take(songs.filter((s) => topMoods.has(moodOf(s))), (s) => moodW.get(moodOf(s)) || 0, quota(0.2));
   const unplayed = songs.filter((s) => !played.has(String(s._id)));
-  take(unplayed.filter((s) => !topGenres.has(s.genre)).concat(unplayed), () => 1, quota(0.1));
+  take(unplayed.filter((s) => !topMoods.has(moodOf(s))).concat(unplayed), () => 1, quota(0.1));
 
   // Top up (new user, thin data, empty buckets) with popular + a little randomness
   if (picked.size < size) take(songs, (s) => (s.playCount || 0) / maxPlay + 0.1, size - picked.size);

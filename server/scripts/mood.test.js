@@ -27,3 +27,27 @@ test("moodFromGenre: moods map to themselves, genres and Other to null", () => {
   assert.equal(moodFromGenre("🎼 Other"), null);
   assert.equal(moodFromGenre(undefined), null);
 });
+
+import { moodOf, genreOf } from "../utils/mood.js";
+import { buildDailyMix } from "../utils/dailyMix.js";
+
+test("moodOf / genreOf: own mood wins, old mood-style genre still counts, no double matching", () => {
+  assert.equal(moodOf({ mood: "😌 Chill", genre: "💕 Romantic" }), "😌 Chill");
+  assert.equal(moodOf({ genre: "💔 Heartbreak" }), "💔 Heartbreak");
+  assert.equal(moodOf({ genre: "💃 Dance" }), null);
+  assert.equal(moodOf({ mood: "🎼 Other" }), null);
+  assert.equal(genreOf({ genre: "💃 Dance" }), "💃 Dance");
+  assert.equal(genreOf({ genre: "💕 Romantic" }), null);
+  assert.equal(genreOf({ genre: "🎼 Other" }), null);
+});
+
+test("daily mix works on songs with and without mood", () => {
+  const songs = Array.from({ length: 30 }, (_, i) => ({
+    _id: String(i), artist: `a${i % 5}`, album: "Single", playCount: i,
+    genre: i % 3 ? "💕 Romantic" : "💃 Dance", ...(i % 2 ? { mood: "💕 Romantic" } : {}),
+  }));
+  const weights = new Map([["1", 5], ["2", 3]]);
+  const mix = buildDailyMix({ songs, weights, seed: "u:2026-01-01", size: 10 });
+  assert.equal(mix.length, 10);
+  assert.equal(new Set(mix.map((s) => s._id)).size, 10);
+});
