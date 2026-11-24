@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  FiBell,
-  FiSearch,
-  FiUpload,
-} from "react-icons/fi";
+import { FiSearch, FiUpload } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
 import SearchBox from "../components/song/SearchBox";
 
@@ -21,6 +17,12 @@ const TopBar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const [mobileSearch, setMobileSearch] = useState(false);
+  const goSearch = (text) => {
+    if (!text) return;
+    setMobileSearch(false);
+    navigate(`/?q=${encodeURIComponent(text)}`);
+  };
 
   const initials =
     user?.name
@@ -59,15 +61,17 @@ const TopBar = () => {
             <SearchBox
               value={query}
               onChange={setQuery}
-              onSubmit={(text) => text && navigate(`/?q=${encodeURIComponent(text)}`)}
+              onSubmit={goSearch}
               placeholder="Search songs, artists..."
               inputClassName="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-12 pr-5 text-white backdrop-blur-xl outline-none transition focus:border-violet-500 placeholder:text-white/50"
             />
           </div>
 
-          {/* Upload */}
+          {/* Upload (admins only: the server rejects uploads from anyone else) */}
 
-          <button
+          {user?.role === "admin" && (
+<button
+            onClick={() => navigate("/?upload=1")}
             className="
               hidden
               sm:flex
@@ -89,10 +93,14 @@ const TopBar = () => {
             <FiUpload />
             Upload
           </button>
+)}
 
           {/* Mobile Search */}
 
           <button
+            onClick={() => setMobileSearch((o) => !o)}
+            aria-label="Search"
+            aria-expanded={mobileSearch}
             className="
               flex
               h-11
@@ -105,24 +113,6 @@ const TopBar = () => {
             "
           >
             <FiSearch />
-          </button>
-
-          {/* Notification */}
-
-          <button
-            className="
-              flex
-              h-11
-              w-11
-              items-center
-              justify-center
-              rounded-full
-              bg-white/5
-              transition
-              hover:bg-white/10
-            "
-          >
-            <FiBell />
           </button>
 
           {/* Avatar */}
@@ -149,6 +139,17 @@ const TopBar = () => {
         </div>
 
       </div>
+    {mobileSearch && (
+        <div className="px-4 pb-4 md:hidden">
+          <SearchBox
+            value={query}
+            onChange={setQuery}
+            onSubmit={goSearch}
+            placeholder="Search songs, artists..."
+            inputClassName="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-12 pr-5 text-white backdrop-blur-xl outline-none transition focus:border-violet-500 placeholder:text-white/50"
+          />
+        </div>
+      )}
     </header>
   );
 };

@@ -10,6 +10,7 @@ import Song from "../models/Song.js";
 // Escape user input so it is matched literally (prevents ReDoS / invalid-regex errors)
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 import ApiError from "../utils/ApiError.js";
+import { artistNames } from "../utils/artists.js";
 
 import {
   MAX_AUDIO_SIZE_BYTES,
@@ -323,4 +324,23 @@ export const deleteSong = asyncHandler(async (req, res) => {
     success: true,
     message: "Song deleted successfully",
   });
+});
+/**
+ * @desc Names with song counts, for the Artists / Albums pages
+ * @route GET /api/songs/meta/browse?by=artist|album
+ * @access Public
+ */
+export const getBrowseList = asyncHandler(async (req, res) => {
+  const by = req.query.by === "album" ? "album" : "artist";
+  const songs = await Song.find({}, "artist album").lean();
+
+  const counts = new Map();
+  for (const s of songs) {
+    // Labels (T-Series...) are not artists; "Single" is the default, not a real album
+    const names = by === "artist" ? artistNames(s.artist) : s.album && s.album !== "Single" ? [s.album.trim()] : [];
+    for (const name of new Set(names)) counts.set(name, (counts.get(name) || 0) + 1);
+  }
+
+  const items = [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  res.status(200).json({ success: true, items });
 });

@@ -42,6 +42,11 @@ export const songService = {
     return data;
   },
 
+  getBrowseList: async (by) => {
+    const { data } = await api.get('/songs/meta/browse', { params: { by } });
+    return data.items;
+  },
+
   uploadSong: async ({ title, artist, album, genre, audioFile, coverFile }, onProgress) => {
     const formData = new FormData();
     formData.append('title', title);

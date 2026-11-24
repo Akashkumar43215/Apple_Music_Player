@@ -40,7 +40,23 @@ const LibraryPage = () => {
   const [sort, setSort] = useState("newest");
 
   // The top-bar search sends people here as /?q=...; apply it and show the results.
-  const urlQuery = useSearchParams()[0].get("q");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q");
+  const urlArtist = searchParams.get("artist");
+  const urlAlbum = searchParams.get("album");
+  const urlUpload = searchParams.get("upload");
+  // Artists / Albums pages link here as /?artist=... or /?album=...; leaving those links clears the filter
+  useEffect(() => {
+    setArtist(urlArtist ?? "");
+    setAlbum(urlAlbum ?? "");
+    if (urlArtist || urlAlbum) document.getElementById("song-list")?.scrollIntoView({ behavior: "smooth" });
+  }, [urlArtist, urlAlbum]);
+  // The top-bar Upload button sends admins here as /?upload=1
+  useEffect(() => {
+    if (urlUpload === null) return;
+    if (canUpload) setShowUploadModal(true);
+    setSearchParams((p) => { p.delete("upload"); return p; }, { replace: true });
+  }, [urlUpload, canUpload, setSearchParams]);
   useEffect(() => {
     if (urlQuery === null) return;
     setSearch(urlQuery);

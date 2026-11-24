@@ -1,6 +1,8 @@
 const PlaylistsPage = lazy(() => import("./pages/PlaylistsPage"));
 const PlaylistDetails = lazy(() => import("./pages/PlaylistDetails"));
 const StatsPage = lazy(() => import("./pages/StatsPage"));
+const BrowsePage = lazy(() => import("./pages/BrowsePage"));
+const RecentlyPlayedPage = lazy(() => import("./pages/RecentlyPlayedPage"));
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -70,6 +72,25 @@ function App() {
               </MainLayout>
             }
           />
+
+          <Route
+            path="/recently-played"
+            element={<MainLayout><RecentlyPlayedPage /></MainLayout>}
+
+          />
+
+          <Route
+            path="/albums"
+            element={<MainLayout><BrowsePage kind="album" /></MainLayout>}
+
+          />
+
+          <Route
+            path="/artists"
+            element={<MainLayout><BrowsePage kind="artist" /></MainLayout>}
+
+          />
+
 
           <Route
             path="/stats"

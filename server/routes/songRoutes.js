@@ -5,6 +5,7 @@ import {
   getSongById,
   getFilterOptions,
   getSuggestions,
+  getBrowseList,
   updateSong,
   deleteSong,
 } from '../controllers/songController.js';
@@ -24,6 +25,7 @@ const router = express.Router();
 router.get('/', listSongsValidation, validate, getSongs);
 router.get('/meta/filters', getFilterOptions);
 router.get('/meta/suggest', getSuggestions);
+router.get('/meta/browse', getBrowseList);
 router.get('/:id/similar', getSimilarSongs);
 router.get('/:id/lyrics', protect, getLyrics);
 router.get('/:id', getSongById);
