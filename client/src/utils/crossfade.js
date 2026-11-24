@@ -24,3 +24,6 @@ export const fadeGains = (progress) => {
   const p = Math.min(1, Math.max(0, progress));
   return { out: Math.cos((p * Math.PI) / 2), in: Math.sin((p * Math.PI) / 2) };
 };
+
+/** Crossfade lengths offered to the user, in seconds (0 = off). */
+export const CROSSFADE_OPTIONS = [0, 3, 6, 9, 12];

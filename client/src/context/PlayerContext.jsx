@@ -3,7 +3,17 @@ import { getMediaUrl } from '../utils/format';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
 import { statsService } from '../services/statsService';
 import { createDecks, canControlVolume } from '../utils/audioDecks';
-import { nextPosition } from '../utils/crossfade';
+import { nextPosition, shouldStartFade, fadeGains, CROSSFADE_OPTIONS } from '../utils/crossfade';
+
+// Saved crossfade length in seconds (0 = off); anything unexpected in storage counts as off.
+const readCrossfade = () => {
+  try {
+    const n = Number(localStorage.getItem('crossfadeSec'));
+    return CROSSFADE_OPTIONS.includes(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+};
 
 export const PlayerContext = createContext(null);
 
@@ -73,13 +83,97 @@ export const PlayerProvider = ({ children }) => {
 
   const currentSong = playOrder.length > 0 ? queue[playOrder[currentIndex]] : null;
 
-  // Keep the <audio> element's volume/mute in sync with state
+  // Crossfade length in seconds, 0 = off. Only effective where gapless playback works (see gaplessRef).
+  const [crossfade, setCrossfadeState] = useState(readCrossfade);
+  const crossfadeRef = useRef(crossfade);
   useEffect(() => {
+    crossfadeRef.current = crossfade;
+  }, [crossfade]);
+  const setCrossfade = useCallback((sec) => {
+    if (!CROSSFADE_OPTIONS.includes(sec)) return;
+    setCrossfadeState(sec);
+    try {
+      localStorage.setItem('crossfadeSec', String(sec));
+    } catch {
+      /* storage unavailable (private mode): the choice lasts until the page closes */
+    }
+  }, []);
+
+  const volumeRef = useRef(0.8);
+  const fadeRef = useRef(null); // { timer, outgoing, incoming } while two songs overlap
+
+  // Keep the <audio> element's volume/mute in sync with state (volume is the fade's job while one runs)
+  useEffect(() => {
+    volumeRef.current = volume;
     decks?.all().forEach((a) => {
-      a.volume = volume;
+      if (!fadeRef.current) a.volume = volume;
       a.muted = isMuted;
     });
   }, [volume, isMuted]);
+
+  // Ends a crossfade at once: release the song that was fading out, restore full volume on both decks.
+  const finishFade = useCallback(() => {
+    const f = fadeRef.current;
+    if (!f) return;
+    fadeRef.current = null;
+    clearInterval(f.timer);
+    f.outgoing.pause();
+    f.outgoing.removeAttribute('src');
+    f.outgoing.load();
+    f.outgoing.volume = volumeRef.current;
+    f.incoming.volume = volumeRef.current;
+  }, []);
+
+  // Moves playback to the next song if it is already buffered on the idle deck. fadeMs > 0 overlaps
+  // the two songs; 0 switches at once. Returns false when it cannot (the caller falls back to loading).
+  const switchToPreloaded = useCallback((nextPos, nextSong, fadeMs) => {
+    if (!gaplessRef.current || preloadedRef.current?.songId !== nextSong?._id || decks.other().readyState < 3) return false;
+    const incoming = decks.other();
+    const outgoing = decks.active;
+    if (fadeMs > 0) incoming.volume = 0;
+    incoming.play().catch(() => {
+      setIsPlaying(false);
+      finishFade();
+    });
+    decks.swap();
+    if (fadeMs > 0) {
+      const startedAt = Date.now();
+      const step = () => {
+        const progress = Math.min(1, (Date.now() - startedAt) / fadeMs);
+        const g = fadeGains(progress);
+        outgoing.volume = volumeRef.current * g.out;
+        incoming.volume = volumeRef.current * g.in;
+        if (progress >= 1) finishFade();
+      };
+      fadeRef.current = { timer: setInterval(step, 50), outgoing, incoming };
+    } else {
+      outgoing.pause();
+      outgoing.removeAttribute('src'); // free the finished song's buffer; this deck is the idle one now
+      outgoing.load();
+    }
+    preloadedRef.current = null;
+    adoptedRef.current = nextSong._id;
+    setDuration(incoming.duration || 0); // its loadedmetadata fired while it was preloading
+    setCurrentTime(0);
+    setIsLoading(false);
+    setCurrentIndex(nextPos);
+    setIsPlaying(true);
+    return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishFade]);
+
+  // Called on every timeupdate of the playing deck: starts the fade when the song is nearly over
+  const maybeCrossfade = useCallback((audio) => {
+    const sec = crossfadeRef.current;
+    if (!sec || !gaplessRef.current || fadeRef.current || repeatMode === 'one' || sleepRef.current?.type === 'song') return;
+    if (!shouldStartFade({ currentTime: audio.currentTime, duration: audio.duration, fadeSec: sec })) return;
+    const pos = nextPosition(playOrder.length, currentIndex, repeatMode);
+    const song = pos === null ? null : queue[playOrder[pos]];
+    if (!song || song._id === currentSong?._id) return;
+    // If the next song is not buffered yet this does nothing and is retried on the next tick
+    switchToPreloaded(pos, song, Math.max(500, Math.min(sec, audio.duration - audio.currentTime) * 1000));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue, playOrder, currentIndex, repeatMode, currentSong?._id, switchToPreloaded]);
 
   // Load a new source whenever the current song changes
   useEffect(() => {
@@ -108,7 +202,7 @@ export const PlayerProvider = ({ children }) => {
 
   // Start downloading the next song on the idle deck (called once the current one is under way)
   const preloadNext = useCallback(() => {
-    if (!gaplessRef.current || repeatMode === 'one') return;
+    if (!gaplessRef.current || repeatMode === 'one' || fadeRef.current) return;
     const pos = nextPosition(playOrder.length, currentIndex, repeatMode);
     const song = pos === null ? null : queue[playOrder[pos]];
     if (!song || song._id === currentSong?._id || preloadedRef.current?.songId === song._id) return;
@@ -122,6 +216,7 @@ export const PlayerProvider = ({ children }) => {
 
   const playNext = useCallback(() => {
     if (playOrder.length === 0) return;
+    finishFade();
     const audio = decks?.active;
 
     if (repeatMode === 'one') {
@@ -149,30 +244,15 @@ export const PlayerProvider = ({ children }) => {
     }
 
     // Gapless: the idle deck already holds the next song, so switch to it instead of loading
-    if (gaplessRef.current && preloadedRef.current?.songId === nextSong?._id && decks.other().readyState >= 3) {
-      const incoming = decks.other();
-      const outgoing = audio;
-      incoming.play().catch(() => setIsPlaying(false));
-      decks.swap();
-      outgoing.pause();
-      outgoing.removeAttribute('src'); // free the finished song's buffer; this deck is the idle one now
-      outgoing.load();
-      preloadedRef.current = null;
-      adoptedRef.current = nextSong._id;
-      setDuration(incoming.duration || 0); // its loadedmetadata fired while it was preloading
-      setCurrentTime(0);
-      setIsLoading(false);
-      setCurrentIndex(nextPos);
-      setIsPlaying(true);
-      return;
-    }
+    if (switchToPreloaded(nextPos, nextSong, 0)) return;
 
     setCurrentIndex(nextPos);
     setIsPlaying(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queue, playOrder, currentIndex, repeatMode, currentSong?._id]);
+  }, [queue, playOrder, currentIndex, repeatMode, currentSong?._id, finishFade, switchToPreloaded]);
 
   const playPrevious = useCallback(() => {
+    finishFade();
     const audio = decks?.active;
     // Standard UX: if more than 3s into the song, restart it instead of
     // going to the previous track
@@ -220,6 +300,7 @@ export const PlayerProvider = ({ children }) => {
           recentlyPlayedService.recordPlay(currentSong._id).catch(() => {});
         }
         if (audio.currentTime > 5) preloadNext();
+        maybeCrossfade(audio);
       });
       const onLoadedMetadata = live(() => {
         setDuration(audio.duration || 0);
@@ -229,6 +310,7 @@ export const PlayerProvider = ({ children }) => {
       const onPause = live(() => {
         setIsPlaying(false);
         flushListen();
+        finishFade(); // the fading-out song must not keep playing under a paused player
       });
       const onEnded = live(() => {
         flushListen();
@@ -257,7 +339,7 @@ export const PlayerProvider = ({ children }) => {
 
     return () => unbind.forEach((u) => u());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSong, playNext, preloadNext]);
+  }, [currentSong, playNext, preloadNext, maybeCrossfade]);
 
   // Report the last bit of listening if the player is torn down.
   useEffect(() => () => flushListen(), [flushListen]);
@@ -266,6 +348,7 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     if (sleepTimer?.type !== 'time') return;
     const id = setTimeout(() => {
+      finishFade();
       decks?.active?.pause();
       setSleepTimerState(null);
     }, Math.max(0, sleepTimer.endsAt - Date.now()));
@@ -286,6 +369,7 @@ export const PlayerProvider = ({ children }) => {
    */
   const playSong = useCallback(
     (song, songList) => {
+      finishFade();
       const list = songList && songList.length > 0 ? songList : [song];
       const originalIndex = list.findIndex((s) => s._id === song._id);
 
@@ -302,6 +386,7 @@ export const PlayerProvider = ({ children }) => {
     const audio = decks?.active;
     if (!audio || !currentSong) return;
     if (isPlaying) {
+      finishFade();
       audio.pause();
     } else {
       audio.play().catch(() => {});
@@ -309,6 +394,7 @@ export const PlayerProvider = ({ children }) => {
   }, [isPlaying, currentSong]);
 
   const seek = useCallback((time) => {
+    finishFade();
     const audio = decks?.active;
     if (audio) {
       audio.currentTime = time;
@@ -343,6 +429,7 @@ export const PlayerProvider = ({ children }) => {
   }, []);
 
   const jumpToQueueIndex = useCallback((posInPlayOrder) => {
+    finishFade();
     setCurrentIndex(posInPlayOrder);
     setIsPlaying(true);
   }, []);
@@ -394,6 +481,9 @@ export const PlayerProvider = ({ children }) => {
     removeFromQueue,
     sleepTimer,
     setSleepTimer,
+    crossfade,
+    setCrossfade,
+    crossfadeSupported: !!gaplessRef.current,
   };
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

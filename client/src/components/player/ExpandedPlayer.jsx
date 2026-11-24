@@ -11,6 +11,7 @@ import PlaybackButtons from './PlaybackButtons';
 import ProgressBar from './ProgressBar';
 import VolumeSlider from './VolumeSlider';
 import SleepTimerMenu from './SleepTimerMenu';
+import CrossfadeMenu from './CrossfadeMenu';
 import SimilarSongs from './SimilarSongs';
 import Lyrics from './Lyrics';
 
@@ -133,7 +134,10 @@ const ExpandedPlayer = ({ onClose, onShowQueue }) => {
           <div className="hidden sm:block">
             <VolumeSlider volume={volume} muted={isMuted} onVolumeChange={setVolume} onMute={toggleMute} />
           </div>
-          <SleepTimerMenu />
+          <div className="flex items-center gap-2">
+            <CrossfadeMenu />
+            <SleepTimerMenu />
+          </div>
         </div>
 
         <Lyrics songId={currentSong._id} />
