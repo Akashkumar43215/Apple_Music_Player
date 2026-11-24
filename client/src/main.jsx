@@ -23,3 +23,8 @@ createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </StrictMode>
 );
+
+// Offline app shell (production only, so dev hot-reload is never served from a cache)
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
