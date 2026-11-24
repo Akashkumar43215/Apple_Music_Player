@@ -2,7 +2,7 @@ import { createContext, useState, useRef, useEffect, useCallback } from 'react';
 import { getMediaUrl } from '../utils/format';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
 import { statsService } from '../services/statsService';
-import { createDecks } from '../utils/audioDecks';
+import { createDecks, canControlVolume } from '../utils/audioDecks';
 import { nextPosition } from '../utils/crossfade';
 
 export const PlayerContext = createContext(null);
@@ -28,6 +28,16 @@ export const PlayerProvider = ({ children }) => {
   const decksRef = useRef(null);
   if (!decksRef.current && typeof Audio !== 'undefined') decksRef.current = createDecks();
   const decks = decksRef.current; // decks.active is the <audio> element that is playing
+
+  // Gapless playback starts the next song on the second deck without a user tap. We only trust
+  // that where volume is controllable (not iOS Safari); there, playback stays on one element.
+  const gaplessRef = useRef(null);
+  if (gaplessRef.current === null) {
+    gaplessRef.current = !!decks && canControlVolume(decks.active);
+    if (gaplessRef.current) decks.other();
+  }
+  const preloadedRef = useRef(null); // { songId }: the idle deck is loading this song
+  const adoptedRef = useRef(null); // id of a song that already started on the other deck (skip the reload)
 
   const [queue, setQueue] = useState([]); // original, unshuffled order
   const [playOrder, setPlayOrder] = useState([]); // array of indices into `queue`
@@ -78,11 +88,17 @@ export const PlayerProvider = ({ children }) => {
 
     flushListen(); // report what was heard of the previous song
     listenRef.current = { songId: currentSong._id, seconds: 0, lastTime: 0 };
+    lastRecordedIdRef.current = null;
+
+    // playNext already started this song on the other deck: nothing to load
+    if (adoptedRef.current === currentSong._id) {
+      adoptedRef.current = null;
+      return;
+    }
 
     setIsLoading(true);
     audio.src = getMediaUrl(currentSong.audioUrl);
     audio.load();
-    lastRecordedIdRef.current = null;
 
     if (isPlaying) {
       audio.play().catch(() => setIsPlaying(false));
@@ -90,11 +106,25 @@ export const PlayerProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSong?._id]);
 
+  // Start downloading the next song on the idle deck (called once the current one is under way)
+  const preloadNext = useCallback(() => {
+    if (!gaplessRef.current || repeatMode === 'one') return;
+    const pos = nextPosition(playOrder.length, currentIndex, repeatMode);
+    const song = pos === null ? null : queue[playOrder[pos]];
+    if (!song || song._id === currentSong?._id || preloadedRef.current?.songId === song._id) return;
+    const idle = decks.other();
+    idle.preload = 'auto';
+    idle.src = getMediaUrl(song.audioUrl);
+    idle.load();
+    preloadedRef.current = { songId: song._id };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue, playOrder, currentIndex, repeatMode, currentSong?._id]);
+
   const playNext = useCallback(() => {
     if (playOrder.length === 0) return;
+    const audio = decks?.active;
 
     if (repeatMode === 'one') {
-      const audio = decks?.active;
       if (audio) {
         audio.currentTime = 0;
         audio.play().catch(() => {});
@@ -107,9 +137,40 @@ export const PlayerProvider = ({ children }) => {
       setIsPlaying(false); // reached the end of the queue, stop
       return;
     }
+    const nextSong = queue[playOrder[nextPos]];
+
+    // The "next" song is the one already playing (one-song queue on repeat all): start it over
+    if (nextSong?._id === currentSong?._id) {
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+      return;
+    }
+
+    // Gapless: the idle deck already holds the next song, so switch to it instead of loading
+    if (gaplessRef.current && preloadedRef.current?.songId === nextSong?._id && decks.other().readyState >= 3) {
+      const incoming = decks.other();
+      const outgoing = audio;
+      incoming.play().catch(() => setIsPlaying(false));
+      decks.swap();
+      outgoing.pause();
+      outgoing.removeAttribute('src'); // free the finished song's buffer; this deck is the idle one now
+      outgoing.load();
+      preloadedRef.current = null;
+      adoptedRef.current = nextSong._id;
+      setDuration(incoming.duration || 0); // its loadedmetadata fired while it was preloading
+      setCurrentTime(0);
+      setIsLoading(false);
+      setCurrentIndex(nextPos);
+      setIsPlaying(true);
+      return;
+    }
+
     setCurrentIndex(nextPos);
     setIsPlaying(true);
-  }, [playOrder.length, currentIndex, repeatMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue, playOrder, currentIndex, repeatMode, currentSong?._id]);
 
   const playPrevious = useCallback(() => {
     const audio = decks?.active;
@@ -132,63 +193,71 @@ export const PlayerProvider = ({ children }) => {
     setIsPlaying(true);
   }, [currentIndex, playOrder.length, repeatMode]);
 
-  // Wire up native audio element events once
+  // Wire up native audio element events on every deck; only the active deck's events count
   useEffect(() => {
-    const audio = decks?.active;
-    if (!audio) return;
+    if (!decks) return;
 
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      // Count only normal playback steps; big jumps are seeks or a repeat-one restart.
-      const r = listenRef.current;
-      const step = audio.currentTime - r.lastTime;
-      r.lastTime = audio.currentTime;
-      if (currentSong && r.songId === currentSong._id && step > 0 && step < 2) r.seconds += step;
-      if (r.seconds >= 30) flushListen();
-      // Count a play after 3s of listening (avoids logging accidental clicks)
-      if (
-        currentSong &&
-        audio.currentTime > 3 &&
-        lastRecordedIdRef.current !== currentSong._id
-      ) {
-        lastRecordedIdRef.current = currentSong._id;
-        recentlyPlayedService.recordPlay(currentSong._id).catch(() => {});
-      }
-    };
-    const onLoadedMetadata = () => {
-      setDuration(audio.duration || 0);
-      setIsLoading(false);
-    };
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => {
-      setIsPlaying(false);
-      flushListen();
-    };
-    const onEnded = () => {
-      flushListen();
-      if (sleepRef.current?.type === 'song') {
-        setSleepTimerState(null);
+    const unbind = decks.all().map((audio) => {
+      const live = (fn) => () => {
+        if (audio === decks.active) fn();
+      };
+
+      const onTimeUpdate = live(() => {
+        setCurrentTime(audio.currentTime);
+        // Count only normal playback steps; big jumps are seeks or a repeat-one restart.
+        const r = listenRef.current;
+        const step = audio.currentTime - r.lastTime;
+        r.lastTime = audio.currentTime;
+        if (currentSong && r.songId === currentSong._id && step > 0 && step < 2) r.seconds += step;
+        if (r.seconds >= 30) flushListen();
+        // Count a play after 3s of listening (avoids logging accidental clicks)
+        if (
+          currentSong &&
+          audio.currentTime > 3 &&
+          lastRecordedIdRef.current !== currentSong._id
+        ) {
+          lastRecordedIdRef.current = currentSong._id;
+          recentlyPlayedService.recordPlay(currentSong._id).catch(() => {});
+        }
+        if (audio.currentTime > 5) preloadNext();
+      });
+      const onLoadedMetadata = live(() => {
+        setDuration(audio.duration || 0);
+        setIsLoading(false);
+      });
+      const onPlay = live(() => setIsPlaying(true));
+      const onPause = live(() => {
         setIsPlaying(false);
-        return;
-      }
-      playNext();
-    };
+        flushListen();
+      });
+      const onEnded = live(() => {
+        flushListen();
+        if (sleepRef.current?.type === 'song') {
+          setSleepTimerState(null);
+          setIsPlaying(false);
+          return;
+        }
+        playNext();
+      });
 
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('loadedmetadata', onLoadedMetadata);
-    audio.addEventListener('play', onPlay);
-    audio.addEventListener('pause', onPause);
-    audio.addEventListener('ended', onEnded);
+      audio.addEventListener('timeupdate', onTimeUpdate);
+      audio.addEventListener('loadedmetadata', onLoadedMetadata);
+      audio.addEventListener('play', onPlay);
+      audio.addEventListener('pause', onPause);
+      audio.addEventListener('ended', onEnded);
 
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-      audio.removeEventListener('play', onPlay);
-      audio.removeEventListener('pause', onPause);
-      audio.removeEventListener('ended', onEnded);
-    };
+      return () => {
+        audio.removeEventListener('timeupdate', onTimeUpdate);
+        audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+        audio.removeEventListener('play', onPlay);
+        audio.removeEventListener('pause', onPause);
+        audio.removeEventListener('ended', onEnded);
+      };
+    });
+
+    return () => unbind.forEach((u) => u());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSong, playNext]);
+  }, [currentSong, playNext, preloadNext]);
 
   // Report the last bit of listening if the player is torn down.
   useEffect(() => () => flushListen(), [flushListen]);
