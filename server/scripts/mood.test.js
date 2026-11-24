@@ -19,3 +19,11 @@ test("mood must be one of MOODS", () => {
 test("every mood is still a valid genre until the data is migrated", () => {
   for (const m of MOODS) assert.ok(GENRES.includes(m), m);
 });
+
+import { moodFromGenre } from "../utils/mood.js";
+test("moodFromGenre: moods map to themselves, genres and Other to null", () => {
+  assert.equal(moodFromGenre("💔 Heartbreak"), "💔 Heartbreak");
+  assert.equal(moodFromGenre("💃 Dance"), null);
+  assert.equal(moodFromGenre("🎼 Other"), null);
+  assert.equal(moodFromGenre(undefined), null);
+});
