@@ -1,8 +1,8 @@
 // Usage: node scripts/cleanMetadata.js [--out dir]       dry-run (default): writes preview + review report, changes nothing
 //        node scripts/cleanMetadata.js --apply           writes backup JSON first, then updates titles
 //        node scripts/cleanMetadata.js --restore <file>  puts titles back from a backup file
-//        node scripts/cleanMetadata.js --from-file <json> [--apply]  applies hand-checked [{id, title}] edits (dry-run unless --apply)
-// Titles only. Artist/album are never touched (shortcut: add --singers/--with-albums if wanted later).
+//        node scripts/cleanMetadata.js --from-file <json> [--apply]  applies hand-checked [{id, title?, artist?, album?}] edits (dry-run unless --apply)
+// The automatic mode only cleans titles. Artist and album change only through a hand-checked --from-file list.
 import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,20 +20,33 @@ await mongoose.connect(process.env.MONGO_URI);
 try {
   if (flag("--restore")) {
     const backup = JSON.parse(fs.readFileSync(val("--restore"), "utf8"));
-    for (const { id, title } of backup) await Song.updateOne({ _id: id }, { $set: { title } });
+    for (const { id, ...fields } of backup) await Song.updateOne({ _id: id }, { $set: fields });
     console.log(`Restored ${backup.length} titles.`);
   } else if (flag("--from-file")) {
+    const FIELDS = { title: 2, artist: 1, album: 1 }; // field -> minimum length (all max 100, like the schema)
     const edits = JSON.parse(fs.readFileSync(val("--from-file"), "utf8"));
-    const current = await Song.find({ _id: { $in: edits.map((e) => e.id) } }, "title").lean();
-    const before = new Map(current.map((x) => [String(x._id), x.title]));
-    // only songs that still exist, with a sensible new title
-    const valid = edits.filter((e) => before.has(e.id) && typeof e.title === "string" && e.title.trim().length >= 2 && e.title.length <= 100);
-    console.log(`${valid.length} of ${edits.length} edits are valid`);
-    valid.forEach((e) => console.log(`  ${before.get(e.id)}\n  -> ${e.title}`));
+    const current = await Song.find({ _id: { $in: edits.map((e) => e.id) } }, "title artist album").lean();
+    const byId = new Map(current.map((x) => [String(x._id), x]));
+
+    // keep only songs that still exist and fields with sensible values
+    const valid = edits
+      .map((e) => {
+        const set = {};
+        for (const [field, min] of Object.entries(FIELDS)) {
+          const v = typeof e[field] === "string" ? e[field].trim() : null;
+          if (v && v.length >= min && v.length <= 100 && v !== byId.get(e.id)?.[field]) set[field] = v;
+        }
+        return { id: e.id, set };
+      })
+      .filter((e) => byId.has(e.id) && Object.keys(e.set).length);
+    const count = (field) => valid.filter((e) => field in e.set).length;
+    console.log(`${valid.length} of ${edits.length} edits will change something (titles: ${count("title")}, artists: ${count("artist")}, albums: ${count("album")})`);
+
     if (flag("--apply")) {
+      // backup holds the current value of every field we are about to change
       const backupFile = path.join(outDir, `backup-${Date.now()}.json`);
-      fs.writeFileSync(backupFile, JSON.stringify(valid.map((e) => ({ id: e.id, title: before.get(e.id) })), null, 2));
-      for (const e of valid) await Song.updateOne({ _id: e.id }, { $set: { title: e.title.trim() } });
+      fs.writeFileSync(backupFile, JSON.stringify(valid.map((e) => ({ id: e.id, ...Object.fromEntries(Object.keys(e.set).map((k) => [k, byId.get(e.id)[k]])) })), null, 2));
+      for (const e of valid) await Song.updateOne({ _id: e.id }, { $set: e.set });
       console.log(`Applied ${valid.length} edits. Undo: node scripts/cleanMetadata.js --restore ${backupFile}`);
     } else {
       console.log("Dry run: nothing written. Add --apply to write.");
