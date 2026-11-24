@@ -21,6 +21,11 @@ export const songService = {
     return data;
   },
 
+  getLyrics: async (id) => {
+    const { data } = await api.get(`/songs/${id}/lyrics`);
+    return data;
+  },
+
   getSmartPlaylists: async () => {
     // tz keeps the Daily Mix's "day" aligned with the viewer's own calendar day
     const { data } = await api.get('/smart', { params: { tz: userTimeZone() } });

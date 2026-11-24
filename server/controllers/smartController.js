@@ -8,6 +8,7 @@ import PlayEvent from "../models/PlayEvent.js";
 import ApiError from "../utils/ApiError.js";
 import { artistTokens } from "../utils/artists.js";
 import { buildDailyMix, dayKey } from "../utils/dailyMix.js";
+import { findLyrics } from "../utils/lyrics.js";
 
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -123,4 +124,21 @@ export const getSmartPlaylists = asyncHandler(async (req, res) => {
   ].filter((p) => p.songs.length > 0);
 
   res.status(200).json({ success: true, playlists });
+});
+
+/**
+ * @desc    Lyrics for a song (synced when available), found on LRCLIB
+ * @route   GET /api/songs/:id/lyrics
+ * @access  Private
+ */
+export const getLyrics = asyncHandler(async (req, res) => {
+  const song = await Song.findById(req.params.id).select("title duration").lean();
+  if (!song) throw new ApiError(404, "Song not found");
+
+  try {
+    res.status(200).json({ success: true, ...(await findLyrics(song)) });
+  } catch {
+    // LRCLIB down or slow: not an error for the user, just no lyrics right now (and not cached)
+    res.status(200).json({ success: true, found: false, unavailable: true });
+  }
 });

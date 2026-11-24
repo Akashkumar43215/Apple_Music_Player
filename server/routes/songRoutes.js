@@ -8,7 +8,7 @@ import {
   updateSong,
   deleteSong,
 } from '../controllers/songController.js';
-import { getSimilarSongs } from '../controllers/smartController.js';
+import { getSimilarSongs, getLyrics } from '../controllers/smartController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 import validate from '../middleware/validateMiddleware.js';
 import { uploadSongFiles } from '../config/multerConfig.js';
@@ -25,6 +25,7 @@ router.get('/', listSongsValidation, validate, getSongs);
 router.get('/meta/filters', getFilterOptions);
 router.get('/meta/suggest', getSuggestions);
 router.get('/:id/similar', getSimilarSongs);
+router.get('/:id/lyrics', protect, getLyrics);
 router.get('/:id', getSongById);
 
 // Private — upload/edit/delete require auth; ownership is checked in the controller
