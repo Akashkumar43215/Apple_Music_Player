@@ -1,5 +1,5 @@
 import { createContext, useState, useRef, useEffect, useCallback } from 'react';
-import { getMediaUrl } from '../utils/format';
+import { audioSrc } from '../utils/offlineSongs';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
 import { statsService } from '../services/statsService';
 import { createDecks, canControlVolume } from '../utils/audioDecks';
@@ -210,7 +210,7 @@ export const PlayerProvider = ({ children }) => {
     }
 
     setIsLoading(true);
-    audio.src = getMediaUrl(currentSong.audioUrl);
+    audio.src = audioSrc(currentSong);
     audio.load();
 
     if (isPlaying) {
@@ -228,7 +228,7 @@ export const PlayerProvider = ({ children }) => {
     if (!song || song._id === currentSong?._id || preloadedRef.current?.songId === song._id) return;
     const idle = decks.other();
     idle.preload = 'auto';
-    idle.src = getMediaUrl(song.audioUrl);
+    idle.src = audioSrc(song);
     idle.load();
     preloadedRef.current = { songId: song._id };
     // eslint-disable-next-line react-hooks/exhaustive-deps

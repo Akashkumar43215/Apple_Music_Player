@@ -6,6 +6,7 @@ vi.mock('../services/authService', () => ({ authService: { getMe: vi.fn() } }));
 import { authService } from '../services/authService';
 import { AuthProvider } from '../context/AuthContext';
 import ProtectedRoute from '../components/common/ProtectedRoute';
+vi.mock('../hooks/usePlayer', () => ({ usePlayer: () => ({ currentSong: null, isPlaying: false, playSong: () => {}, togglePlay: () => {} }) }));
 
 const app = () => render(
   <MemoryRouter initialEntries={['/']}>

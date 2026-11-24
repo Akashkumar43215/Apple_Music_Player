@@ -6,7 +6,10 @@ import App from './App.jsx';
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { PlayerProvider } from './context/PlayerContext.jsx';
+import { loadOffline } from './utils/offlineSongs';
 import './index.css';
+
+loadOffline(); // saved songs must be known before the first play
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
