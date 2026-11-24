@@ -7,7 +7,7 @@ const label = (sec) => (sec === 0 ? 'Off' : `${sec} seconds`);
 
 /** Picks how long the end of one song overlaps the start of the next. Hidden where it cannot work (iOS Safari). */
 const CrossfadeMenu = ({ direction = 'up' }) => {
-  const { crossfade, setCrossfade, crossfadeSupported } = usePlayer();
+  const { crossfade, setCrossfade, crossfadeSupported, wifiOnly, setWifiOnly } = usePlayer();
   const [open, setOpen] = useState(false);
 
   if (!crossfadeSupported) return null;
@@ -33,7 +33,7 @@ const CrossfadeMenu = ({ direction = 'up' }) => {
           <ul
             role="menu"
             aria-label="Crossfade"
-            className={`absolute right-0 z-20 w-44 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 text-sm shadow-2xl ${
+            className={`absolute right-0 z-20 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#17171D] py-1 text-sm shadow-2xl ${
               direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'
             }`}
           >
@@ -52,6 +52,17 @@ const CrossfadeMenu = ({ direction = 'up' }) => {
                 </button>
               </li>
             ))}
+            <li role="none" className="mt-1 border-t border-white/10">
+              <button
+                role="menuitemcheckbox"
+                aria-checked={wifiOnly}
+                onClick={() => setWifiOnly(!wifiOnly)}
+                className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-white/80 hover:bg-white/10"
+              >
+                <span>Preload only on Wi-Fi</span>
+                <span className={wifiOnly ? 'font-semibold text-violet-400' : 'text-white/40'}>{wifiOnly ? 'On' : 'Off'}</span>
+              </button>
+            </li>
           </ul>
         </>
       )}

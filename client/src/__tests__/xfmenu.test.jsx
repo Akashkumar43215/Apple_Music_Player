@@ -3,7 +3,8 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 
 let state;
 const setCrossfade = vi.fn();
-vi.mock("../hooks/usePlayer", () => ({ usePlayer: () => ({ ...state, setCrossfade }) }));
+const setWifiOnly = vi.fn();
+vi.mock("../hooks/usePlayer", () => ({ usePlayer: () => ({ ...state, setCrossfade, setWifiOnly }) }));
 import CrossfadeMenu from "../components/player/CrossfadeMenu";
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
@@ -23,4 +24,13 @@ test("shows the current value, lists the options, and saves the pick", () => {
   fireEvent.click(screen.getByRole("menuitemradio", { name: "9 seconds" }));
   expect(setCrossfade).toHaveBeenCalledWith(9);
   expect(screen.queryByRole("menu")).toBeNull();
+});
+test("Wi-Fi-only preload checkbox reflects and flips the setting", () => {
+  state = { crossfade: 0, crossfadeSupported: true, wifiOnly: false };
+  render(<CrossfadeMenu />);
+  fireEvent.click(screen.getByRole("button", { name: "Crossfade: Off" }));
+  const box = screen.getByRole("menuitemcheckbox", { name: /Preload only on Wi-Fi/ });
+  expect(box.getAttribute("aria-checked")).toBe("false");
+  fireEvent.click(box);
+  expect(setWifiOnly).toHaveBeenCalledWith(true);
 });

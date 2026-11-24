@@ -3,7 +3,7 @@ import { getMediaUrl } from '../utils/format';
 import { recentlyPlayedService } from '../services/recentlyPlayedService';
 import { statsService } from '../services/statsService';
 import { createDecks, canControlVolume } from '../utils/audioDecks';
-import { nextPosition, shouldStartFade, fadeGains, CROSSFADE_OPTIONS } from '../utils/crossfade';
+import { nextPosition, shouldStartFade, fadeGains, isMeteredConnection, CROSSFADE_OPTIONS } from '../utils/crossfade';
 
 // Saved crossfade length in seconds (0 = off); anything unexpected in storage counts as off.
 const readCrossfade = () => {
@@ -96,6 +96,25 @@ export const PlayerProvider = ({ children }) => {
       localStorage.setItem('crossfadeSec', String(sec));
     } catch {
       /* storage unavailable (private mode): the choice lasts until the page closes */
+    }
+  }, []);
+
+  // "Preload only on Wi-Fi": skip fetching the next song early while on mobile data / data saver
+  const [wifiOnly, setWifiOnlyState] = useState(() => {
+    try {
+      return localStorage.getItem('wifiOnlyPreload') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const wifiOnlyRef = useRef(wifiOnly);
+  const setWifiOnly = useCallback((on) => {
+    wifiOnlyRef.current = on;
+    setWifiOnlyState(on);
+    try {
+      localStorage.setItem('wifiOnlyPreload', on ? '1' : '0');
+    } catch {
+      /* storage unavailable: the choice lasts until the page closes */
     }
   }, []);
 
@@ -203,6 +222,7 @@ export const PlayerProvider = ({ children }) => {
   // Start downloading the next song on the idle deck (called once the current one is under way)
   const preloadNext = useCallback(() => {
     if (!gaplessRef.current || repeatMode === 'one' || fadeRef.current) return;
+    if (wifiOnlyRef.current && isMeteredConnection()) return; // next song then loads normally when this one ends
     const pos = nextPosition(playOrder.length, currentIndex, repeatMode);
     const song = pos === null ? null : queue[playOrder[pos]];
     if (!song || song._id === currentSong?._id || preloadedRef.current?.songId === song._id) return;
@@ -484,6 +504,8 @@ export const PlayerProvider = ({ children }) => {
     crossfade,
     setCrossfade,
     crossfadeSupported: !!gaplessRef.current,
+    wifiOnly,
+    setWifiOnly,
   };
 
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;

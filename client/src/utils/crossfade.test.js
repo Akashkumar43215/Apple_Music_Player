@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { nextPosition, shouldStartFade, fadeGains } from './crossfade.js';
+import { nextPosition, shouldStartFade, fadeGains, isMeteredConnection } from './crossfade.js';
 
 test('nextPosition: advances, stops at the end, wraps for repeat all, stays for repeat one', () => {
   expect(nextPosition(3, 0, 'off')).toBe(1);
@@ -23,4 +23,12 @@ test('fadeGains: equal power, clamped', () => {
   expect(Math.abs(mid.out ** 2 + mid.in ** 2 - 1)).toBeLessThan(1e-9);
   expect(fadeGains(2).out).toBeLessThan(1e-9);
   expect(fadeGains(-1).in).toBe(0);
+});
+
+test('isMeteredConnection: cellular or data saver count, wifi and unknown do not', () => {
+  expect(isMeteredConnection({ type: 'cellular' })).toBe(true);
+  expect(isMeteredConnection({ saveData: true })).toBe(true);
+  expect(isMeteredConnection({ type: 'wifi', saveData: false })).toBe(false);
+  expect(isMeteredConnection({})).toBe(false);
+  expect(isMeteredConnection(undefined)).toBe(false);
 });

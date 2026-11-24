@@ -27,3 +27,10 @@ export const fadeGains = (progress) => {
 
 /** Crossfade lengths offered to the user, in seconds (0 = off). */
 export const CROSSFADE_OPTIONS = [0, 3, 6, 9, 12];
+
+/**
+ * True when the browser says the connection is mobile data or data-saver is on.
+ * shortcut: only Chrome/Android report this; elsewhere (Safari, Firefox) it is unknown, so we treat it as not metered.
+ */
+export const isMeteredConnection = (conn = typeof navigator !== 'undefined' ? navigator.connection : undefined) =>
+  !!conn && (conn.saveData === true || conn.type === 'cellular');
